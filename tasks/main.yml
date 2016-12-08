@@ -1,0 +1,35 @@
+---
+# tasks file for ansible-role-travis-lxc
+- name: Create SSH directory for current user
+  file:
+    path: "~{{ ansible_user_id }}/.ssh"
+    state: directory
+    mode: 0700
+
+- name: Generate local ssh-rsa key
+  user:
+    name: "{{ ansible_user_id }}"
+    generate_ssh_key: true
+    ssh_key_file: "~{{ ansible_user_id }}/.ssh/id_rsa"
+    ssh_key_type: rsa
+    ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
+
+- include: "{{ template }}-{{ release }}.yml"
+
+- name: Wait for test containers to come online
+  lxc_container:
+    name: "{{ host_prefix }}{{ '%s' | format(item) }}"
+    container_command: "until (grep -q '^up$' /sys/class/net/__REPLACE_WITH_CONTAINER_INTERFACE__/operstate); do printf . && sleep 1; done; sleep 2"
+  register: containers
+  with_sequence: count="{{ host_quantity | int }}" format="%02d"
+
+- debug: var=containers
+
+- name: Add test container(s) to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^.*\b{{ item.lxc_container.name }}.lxc"
+    line: "{{ item.lxc_container.ips[0] }} {{ item.lxc_container.name }}.lxc"
+  with_items: "{{ containers.results }}"
+
+# vim:ft=ansible:
