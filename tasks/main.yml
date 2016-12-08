@@ -19,7 +19,8 @@
 - name: Wait for test containers to come online
   lxc_container:
     name: "{{ host_prefix }}{{ '%s' | format(item) }}"
-    container_command: "until (grep -q '^up$' /sys/class/net/__REPLACE_WITH_CONTAINER_INTERFACE__/operstate); do printf . && sleep 1; done; sleep 2"
+    container_command: "until (grep -q '^up$' /sys/class/net/eth0/operstate); do printf . && sleep 1; done; sleep 2"
+  changed_when: false
   register: containers
   with_sequence: count="{{ host_quantity | int }}" format="%02d"
 
@@ -28,7 +29,7 @@
 - name: Add test container(s) to /etc/hosts
   lineinfile:
     dest: /etc/hosts
-    regexp: "^.*\b{{ item.lxc_container.name }}.lxc"
+    regexp: "^.* {{ item.lxc_container.name }}.lxc"
     line: "{{ item.lxc_container.ips[0] }} {{ item.lxc_container.name }}.lxc"
   with_items: "{{ containers.results }}"
 
