@@ -1,10 +1,5 @@
 ---
 # tasks file for ansible-role-travis-lxc
-- name: Install python-apt
-  command: "apt-get install -yq python-apt"
-  args:
-    creates: /usr/lib/python2.7/dist-packages/apt
-
 - name: Install needed packages
   apt:
     name: "{{ item }}"

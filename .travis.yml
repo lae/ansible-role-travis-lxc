@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
     - python-pip
+    - python-apt
     - expect-dev
 cache:
   directories:
