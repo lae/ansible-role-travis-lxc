@@ -6,8 +6,9 @@ addons:
   apt:
     packages:
     - python-pip
-    - python-apt
     - expect-dev
+virtualenv:
+  system_site_packages: true
 cache:
   directories:
   - "$HOME/lxc/"
