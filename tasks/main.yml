@@ -33,4 +33,18 @@
     line: "{{ item.lxc_container.ips[0] }} {{ item.lxc_container.name }}.lxc"
   with_items: "{{ containers.results }}"
 
+- name: Create .ssh directory in containers
+  file:
+    path: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/"
+    state: directory
+    mode: 0700
+  with_items: "{{ containers.results }}"
+
+- name: Copy current user's public key into containers
+  copy:
+    src: "~/.ssh/id_rsa.pub"
+    dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/authorized_keys"
+    mode: 0600
+  with_items: "{{ containers.results }}"
+
 # vim:ft=ansible:
