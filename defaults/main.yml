@@ -6,4 +6,5 @@ host_prefix: test
 host_quantity: 1
 container_config:
   - "lxc.aa_profile=unconfined"
-  - "lxc.mount.auto = proc:rw sys:rw cgroup-full:rw"
+  - "lxc.mount.auto=proc:rw sys:rw cgroup-full:rw"
+  - "lxc.cgroup.devices.allow=a *:* rmw"
