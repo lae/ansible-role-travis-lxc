@@ -1,5 +1,8 @@
 ---
 # tasks file for ansible-role-travis-lxc
+- set_fact:
+    ansible_python_interpreter: /usr/bin/python
+
 - block:
   - name: Configure LXC PPA
     apt_repository:
