@@ -15,6 +15,7 @@ before_cache:
 - sudo chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
+- export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
 - pip install ansible
 - python --version
 - which pip
