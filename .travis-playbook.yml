@@ -1,7 +1,15 @@
 ---
 - hosts: localhost
   gather_facts: True
-  tasks: []
+  tasks:
+    - name: Insert python wrapper for Ansible
+      copy:
+        contents: |
+          #!/bin/bash
+          source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/activate"
+          python $@
+        dest: "{{ lookup('env','VIRTUAL_ENV') }}/pyvenv"
+        mode: 0755
 
 - hosts: localhost
   gather_facts: False
@@ -9,5 +17,5 @@
   roles:
     - { name: ansible-role-travis-lxc }
   vars:
-    ansible_ssh_interpreter: "{{ lookup('env','VIRTUAL_ENV') }}/python"
+    ansible_ssh_interpreter: "{{ lookup('env','VIRTUAL_ENV') }}/pyvenv"
     host_quantity: 2
