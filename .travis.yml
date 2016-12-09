@@ -5,6 +5,7 @@ addons:
   apt:
     packages:
     - expect-dev
+    - lxc-dev
 cache:
   directories:
   - "$HOME/lxc/"
