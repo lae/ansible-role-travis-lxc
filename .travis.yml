@@ -5,11 +5,7 @@ dist: trusty
 addons:
   apt:
     packages:
-    - python-pip
-    - lxc-dev
     - expect-dev
-virtualenv:
-  system_site_packages: true
 cache:
   directories:
   - "$HOME/lxc/"
@@ -20,7 +16,7 @@ before_cache:
 - sudo chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
-- pip install ansible lxc-python2
+- pip install ansible python-apt
 - ansible --version
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
