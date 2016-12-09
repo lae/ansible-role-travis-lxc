@@ -31,6 +31,7 @@ script:
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
+- /usr/bin/python -c 'import lxc'
 - pip freeze
 - sudo lxc-attach -n test01 -v PAGER=cat -- journalctl -xn
 notifications:
