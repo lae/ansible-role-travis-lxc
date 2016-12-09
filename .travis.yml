@@ -1,10 +1,7 @@
----
 language: python
-python: "2.7"
-
+python: '2.7'
 sudo: required
 dist: trusty
-
 addons:
   apt:
     sources:
@@ -17,32 +14,29 @@ addons:
     - yum
     - debootstrap
     - expect-dev
-
 cache:
   directories:
   - "$HOME/lxc/"
   pip: true
-
 before_cache:
 - mkdir $HOME/lxc
 - sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/
 - sudo chown $USER. $HOME/lxc/cache.tar
-
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
 - pip install ansible lxc-python2
 - ansible --version
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
-
 script:
-  # Basic role syntax check
-  - ansible-playbook .travis-playbook.yml --syntax-check
-  - ansible-playbook .travis-playbook.yml
-  - unbuffer ansible-playbook .travis-playbook.yml >/tmp/idempotency.log 2>&1
-  - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" && (echo "Idempotence:
-    PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log; exit 1)'
-  - sudo lxc-attach -n test01 -v PAGER=cat -- journalctl -xn
-
+- ansible-playbook .travis-playbook.yml --syntax-check
+- ansible-playbook .travis-playbook.yml
+- unbuffer ansible-playbook .travis-playbook.yml >/tmp/idempotency.log 2>&1
+- 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
+  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
+  exit 1)'
+- sudo lxc-attach -n test01 -v PAGER=cat -- journalctl -xn
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  slack:
+    secure: MsxUgDXsiTpTGbWCBSXWdjMqPGGoxrpSr0isQp1lUhpb2VCSMAbpBtN7sf7NjyewFIj/4OudDJ0+F6gWN5YVCOW6PvojQ7pNPENH/yCdsfH2nwhIshJ12VPs4tWbRA/C0FSLzijb1961tSrqxPE7afa4KKBJNY4Xfud0RiWlRXllUcbC2zCVBc6BXAdolJ6qT20Fpupa9gD94tq73mCb2h8C6GVhnb7dh7125q7I7bXVd+lCyDp21qoEz/mTgIGE21MIzCQZhQEkOjewhdDWVk0WVfq5Qhzd3A0anb60vL6U+b9OUXwKP15kFIH6wMA3Xs5X+jwZbPVTKHnYQ15W/FFNUZAQGnoCFOtYDGVowB5RsApeRElIj4EM3PTJ3zNTjUcHaFbVWux1v+IlVtmLvskCWXdxUX2NAR12hy6Mv76WE8SclW4lWFxws8hske0CSJLizMnTfUJfRK9wy5W0FjmoDm51MS1sNjEGlUVnC8Zpb6eyKchz0XYeq5ZFXk2SR6e9NdpzZ16I5Cmc929WP/Ux8/NwSuQixDOFiDkm4nzJ1TvNAK7N0Y24DsfhFLwIfjq200bEqUZE51keMUR2j9pD7E5cS1RX/DYXsV2mttfoFpmvKvlk/NSwZZq3yH9lgpM+IREM4asXFDBsmURd9Sj/CfPkC5wwzkDEuap8ySc=
