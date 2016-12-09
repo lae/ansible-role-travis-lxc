@@ -1,5 +1,18 @@
 ---
 # tasks file for ansible-role-travis-lxc
+- name: Insert python wrapper for Ansible
+  copy:
+    content: |
+      #!/bin/bash
+      source "{{ lookup('env','VIRTUAL_ENV') }}/bin/activate"
+      python $@
+    dest: "{{ lookup('env','VIRTUAL_ENV') }}/bin/pyvenv"
+    mode: 0755
+
+- name: Set ansible_python_interpreter
+  set_fact:
+    ansible_python_interpreter: "{{ lookup('env','VIRTUAL_ENV') }}/bin/pyvenv"
+
 - name: Configure LXC PPA
   apt_repository:
     repo: "ppa:ubuntu-lxc/stable"
