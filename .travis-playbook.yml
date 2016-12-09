@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  become: True
+  roles:
+    - { name: ansible-role-travis-lxc }
+  vars:
+    host_quantity: 2
