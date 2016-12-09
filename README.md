@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/lae/ansible-role-travis-lxc.svg?branch=master)](https://travis-ci.org/lae/ansible-role-travis-lxc)
+[![Galaxy Role](https://img.shields.io/badge/ansible--galaxy-travis-lxc-blue.svg)](https://galaxy.ansible.com/lae/travis-lxc/)
+
 lae.travis-lxc
 =========
 
