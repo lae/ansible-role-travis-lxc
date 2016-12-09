@@ -1,2 +1,10 @@
 ---
 # vars file for ansible-role-travis-lxc
+travis_lxc_packages:
+  - lxc
+  - lxc-templates
+  - lxc-dev
+  - yum
+  - debootstrap
+travis_lxc_eggs:
+  - lxc-python2

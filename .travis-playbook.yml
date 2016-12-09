@@ -1,13 +1,6 @@
 ---
 - hosts: localhost
   connection: local
-  gather_facts: True
-  tasks: []
-
-- hosts: localhost
-  connection: local
-  gather_facts: False
-  become: True
   roles:
     - { name: ansible-role-travis-lxc }
   vars:

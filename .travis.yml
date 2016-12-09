@@ -1,36 +1,21 @@
 language: python
-python: '2.7'
 sudo: required
 dist: trusty
-addons:
-  apt:
-    sources:
-    - sourceline: ppa:ubuntu-lxc/stable
-    packages:
-    - python-pip
-    - lxc
-    - lxc-templates
-    - lxc-dev
-    - yum
-    - debootstrap
-    - expect-dev
 cache:
-  directories:
-  - "$HOME/lxc/"
+  directories: [ '/lxc' ]
   pip: true
 before_cache:
-- mkdir $HOME/lxc
-- sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/
-- sudo chown $USER. $HOME/lxc/cache.tar
+- sudo mkdir /lxc && sudo tar cf /lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. /lxc/cache.tar
 install:
-- sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
-- pip install ansible lxc-python2
+- sudo tar xf /lxc/cache.tar -C / || true
+- sudo apt-get install -y expect-dev
+- pip install ansible
 - ansible --version
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
 script:
 - ansible-playbook .travis-playbook.yml --syntax-check
-- ansible-playbook .travis-playbook.yml
+- ansible-playbook -vvv .travis-playbook.yml
 - unbuffer ansible-playbook .travis-playbook.yml >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;

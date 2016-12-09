@@ -8,5 +8,4 @@
     state: started
   with_sequence: count="{{ host_quantity | int }}" format="%02d"
 
-
 # vim:ft=ansible:
