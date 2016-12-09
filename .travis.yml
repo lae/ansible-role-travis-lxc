@@ -26,8 +26,6 @@ script:
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
-- pip freeze
-- sudo /usr/bin/lxc-create --name test01-post --template debian --bdev dir -- --release jessie --mirror http://mirrors.us.kernel.org/debian --packages python,ca-certificates,curl,sudo
 - sudo lxc-attach -n test01 -v PAGER=cat -- journalctl -xn
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
