@@ -49,6 +49,8 @@
     ssh_key_type: rsa
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
+- shell: sleep 20
+
 - block:
   - include: "{{ template }}-{{ release }}.yml"
 
