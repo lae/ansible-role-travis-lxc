@@ -5,6 +5,7 @@ dist: trusty
 addons:
   apt:
     packages:
+    - python-distutils-extra
     - expect-dev
 cache:
   directories:
