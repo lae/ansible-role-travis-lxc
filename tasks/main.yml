@@ -1,8 +1,14 @@
 ---
 # tasks file for ansible-role-travis-lxc
+- name: Configure LXC PPA
+  apt_repository:
+    repo: "ppa:ubuntu-lxc/stable"
+
 - name: Install needed packages
   apt:
     name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
     state: latest
   with_items: "{{ travis_lxc_packages }}"
 
