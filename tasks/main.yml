@@ -12,6 +12,7 @@
     with_items:
       - apt
       - apt_pkg.so
+      - aptsources
 
   - name: Configure LXC PPA
     apt_repository:
