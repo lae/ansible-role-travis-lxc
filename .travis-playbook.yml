@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   gather_facts: True
+  connection: local
   tasks:
     - name: Insert python wrapper for Ansible
       copy:
@@ -13,6 +14,7 @@
 
 - hosts: localhost
   gather_facts: False
+  connection: local
   become: True
   roles:
     - { name: ansible-role-travis-lxc }
