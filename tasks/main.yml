@@ -12,7 +12,10 @@
     with_items:
       - apt
       - apt_pkg.so
+      - apt_inst.so
       - aptsources
+      - python_apt-0.9.3.5ubuntu2.egg-info
+      - axi
 
   - name: Configure LXC PPA
     apt_repository:
