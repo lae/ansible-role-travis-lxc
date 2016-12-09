@@ -1,4 +1,4 @@
-language: c
+language: python
 sudo: required
 dist: trusty
 addons:
@@ -16,14 +16,11 @@ before_cache:
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
 - pip install ansible
-- python --version
-- env
 - ansible --version
-- ls /usr/lib/python2.7/dist-packages/ -l
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
 script:
-- ansible-playbook .travis-playbook.yml --syntax-check
+- ansible-playbook .travis-playbook.yml -i localhost, --syntax-check
 - ansible-playbook -vvv .travis-playbook.yml -i localhost,
 - unbuffer ansible-playbook .travis-playbook.yml -i localhost, >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&

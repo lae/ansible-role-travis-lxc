@@ -1,14 +1,17 @@
 ---
 # tasks file for ansible-role-travis-lxc
 - set_fact:
-    ansible_python_interpreter: /opt/python/2.7.12/bin/python
+    ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
 
 - block:
-  - name: Symlink OS python-apt into Travis Python
+  - name: Symlink OS python-apt into Travis Python virtualenv
     file:
-      src: /usr/lib/python2.7/dist-packages/apt
-      path: "/opt/python/2.7.12/lib/python2.7/site-packages/apt"
+      src: "/usr/lib/python2.7/dist-packages/{{ item }}"
+      path: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python2.7/site-packages/{{ item }}"
       state: link
+    with_items:
+      - apt
+      - apt_pkg.so
 
   - name: Configure LXC PPA
     apt_repository:
