@@ -1,22 +1,6 @@
 ---
 # tasks file for ansible-role-travis-lxc
-- set_fact:
-    ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
-
 - block:
-  - name: Symlink OS python-apt into Travis Python virtualenv
-    file:
-      src: "/usr/lib/python2.7/dist-packages/{{ item }}"
-      path: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python2.7/site-packages/{{ item }}"
-      state: link
-    with_items:
-      - apt
-      - apt_pkg.so
-      - apt_inst.so
-      - aptsources
-      - python_apt-0.9.3.5ubuntu2.egg-info
-      - axi
-
   - name: Configure LXC PPA
     apt_repository:
       repo: "ppa:ubuntu-lxc/stable"
@@ -28,13 +12,12 @@
       cache_valid_time: 3600
       state: latest
     with_items: "{{ travis_lxc_packages }}"
-  become: True
 
-- name: Install needed Python libraries
-  pip:
-    name: "{{ travis_lxc_eggs }}"
-    state: latest
-    virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+  - name: Install needed Python libraries
+    pip:
+      name: "{{ travis_lxc_eggs }}"
+      state: latest
+  become: True
 
 - name: Create SSH directory for current user
   file:
