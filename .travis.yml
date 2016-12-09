@@ -5,7 +5,6 @@ dist: trusty
 addons:
   apt:
     packages:
-    - python-distutils-extra
     - expect-dev
 cache:
   directories:
@@ -17,7 +16,9 @@ before_cache:
 - sudo chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
-- pip install ansible python-apt
+- which python
+- env
+- pip install ansible
 - ansible --version
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
