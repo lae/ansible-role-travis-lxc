@@ -23,8 +23,8 @@ install:
   >ansible.cfg
 script:
 - ansible-playbook .travis-playbook.yml --syntax-check
-- ansible-playbook -vvvv -e '{"ansible_python_interpreter":"/home/travis/virtualenv/python2.7.12/bin/python"}' .travis-playbook.yml -i localhost,
-- unbuffer ansible-playbook -e '{"ansible_python_interpreter":"/home/travis/virtualenv/python2.7.12/bin/python"}' .travis-playbook.yml -i locahost, >/tmp/idempotency.log 2>&1
+- ansible-playbook -vvvv .travis-playbook.yml -i localhost,
+- unbuffer ansible-playbook .travis-playbook.yml -i localhost, >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
