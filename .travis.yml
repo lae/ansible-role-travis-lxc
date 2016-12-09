@@ -4,6 +4,9 @@ dist: trusty
 cache:
   directories: [ '/lxc' ]
   pip: true
+env:
+  - LXC_DISTRO=debian LXC_RELEASE=jessie
+  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
 before_cache:
 - sudo mkdir /lxc && sudo tar cf /lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. /lxc/cache.tar
 install:
