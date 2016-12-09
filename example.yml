@@ -1,11 +1,6 @@
 ---
 - hosts: localhost
-  gather_facts: True
-  tasks: []
-
-- hosts: localhost
-  gather_facts: False
-  become: True
+  connection: local
   roles:
     - { name: lae.travis-lxc }
   vars:
