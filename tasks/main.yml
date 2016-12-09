@@ -14,6 +14,11 @@
     ansible_python_interpreter: "{{ lookup('env','VIRTUAL_ENV') }}/bin/pyvenv"
 
 - block:
+  - name: Copy python-apt into Travis' virtualenv
+    copy:
+      src: /usr/lib/python2.7/dist-packages/apt
+      dest: "{{ lookup('env','VIRTUAL_ENV') }}/lib/python2.7/site-packages/apt"
+
   - name: Configure LXC PPA
     apt_repository:
       repo: "ppa:ubuntu-lxc/stable"
