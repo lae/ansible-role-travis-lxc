@@ -8,4 +8,3 @@ travis_lxc_packages:
   - debootstrap
 travis_lxc_eggs:
   - lxc-python2
-  - python-apt
