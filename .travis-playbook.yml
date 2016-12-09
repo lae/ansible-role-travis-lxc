@@ -9,4 +9,5 @@
   roles:
     - { name: ansible-role-travis-lxc }
   vars:
+    ansible_ssh_interpreter: "{{ lookup('env','VIRTUAL_ENV') }}/python"
     host_quantity: 2
