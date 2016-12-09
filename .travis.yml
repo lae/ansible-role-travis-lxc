@@ -22,7 +22,6 @@ install:
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
 script:
-- export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
 - ansible-playbook .travis-playbook.yml --syntax-check
 - ansible-playbook -vvv .travis-playbook.yml -i localhost,
 - unbuffer ansible-playbook .travis-playbook.yml -i localhost, >/tmp/idempotency.log 2>&1
