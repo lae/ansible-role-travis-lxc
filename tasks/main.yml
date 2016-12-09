@@ -4,6 +4,11 @@
     ansible_python_interpreter: /opt/python/2.7.12/bin/python
 
 - block:
+  - name: Copy python-apt into Travis' virtualenv
+    copy:
+      src: /usr/lib/python2.7/dist-packages/apt
+      dest: "/opt/python/2.7.12/lib/python2.7/site-packages/"
+
   - name: Configure LXC PPA
     apt_repository:
       repo: "ppa:ubuntu-lxc/stable"
