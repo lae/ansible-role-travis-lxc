@@ -18,6 +18,7 @@ install:
 - pip install ansible
 - python --version
 - ansible --version
+- ls /opt/python/2.7.12/ -Rl
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
 script:
