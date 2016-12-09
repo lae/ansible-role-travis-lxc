@@ -1,5 +1,16 @@
 ---
 # tasks file for ansible-role-travis-lxc
+- name: Install needed packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ travis_lxc_packages }}"
+
+- name: Install needed Python libraries
+  pip:
+    name: "{{ travis_lxc_eggs }}"
+    state: latest
+
 - name: Create SSH directory for current user
   file:
     path: "~{{ ansible_user_id }}/.ssh"
