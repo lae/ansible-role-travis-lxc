@@ -15,13 +15,14 @@ before_cache:
 - sudo chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || echo "Didn't extract cache."
-- pip install ansible
+- pip install ansible lxc-python2
+- python --version
 - ansible --version
 - printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
   >ansible.cfg
 script:
 - ansible-playbook .travis-playbook.yml --syntax-check
-- ansible-playbook -vv .travis-playbook.yml -i localhost,
+- ansible-playbook -vvv .travis-playbook.yml -i localhost,
 - unbuffer ansible-playbook .travis-playbook.yml -i localhost, >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
