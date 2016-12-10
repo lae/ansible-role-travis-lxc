@@ -5,5 +5,3 @@
     - { name: lae.travis-lxc }
   vars:
     host_quantity: 2
-    template: "{{ lookup('env', 'LXC_DISTRO') }}"
-    release: "{{ lookup('env', 'LXC_RELEASE') }}"

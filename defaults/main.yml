@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible-role-travis-lxc
-template: debian
-release: jessie
+template: "{{ lookup('env', 'LXC_DISTRO') | default('debian', true) }}"
+release: "{{ lookup('env', 'LXC_RELEASE') | default('jessie', true) }}"
 host_prefix: test
 host_quantity: 1
 container_config:
