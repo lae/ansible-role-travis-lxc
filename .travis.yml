@@ -15,8 +15,7 @@ install:
 - sudo apt-get install -y expect-dev
 - pip install ansible
 - ansible --version
-- printf '[defaults]\nroles_path=../\nhost_key_checking=False\ncallback_whitelist=profile_tasks'
-  >ansible.cfg
+- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
 script:
 - ansible-playbook .travis-playbook.yml --syntax-check
 - ansible-playbook -vvv .travis-playbook.yml
@@ -24,7 +23,7 @@ script:
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
-- sudo lxc-attach -n test01 -v PAGER=cat -- journalctl -xn
+- ssh root@test01.lxc PAGER=cat journalctl -xn
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   slack:

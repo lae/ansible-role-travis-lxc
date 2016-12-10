@@ -98,4 +98,18 @@
     with_items: "{{ lxc_hosts }}"
   become: True
 
+- name: Collect SSH host keys
+  shell: "ssh-keyscan {{ item.host }}.lxc > ~{{ ansible_user_id }}/.ssh/{{ item.host }}.pub"
+  args:
+    creates: "~{{ ansible_user_id }}/.ssh/{{ item.host }}.pub"
+  with_items: "{{ lxc_hosts }}"
+
+- name: Add all containers to user's known_hosts
+  blockinfile:
+    marker: "# {mark} {{ item.host }}"
+    content: "{{ lookup('file', '~' + ansible_user_id + '/.ssh/' + item.host + '.pub') }}"
+    dest: "~{{ ansible_user_id }}/.ssh/known_hosts"
+    create: yes
+  with_items: "{{ lxc_hosts }}"
+
 # vim:ft=ansible:
