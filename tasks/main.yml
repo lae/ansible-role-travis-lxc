@@ -47,14 +47,13 @@
     ssh_key_type: rsa
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
-- include: "{{ template }}-{{ release }}.yml"
-  become: True
-
 - block:
+  - include: "{{ template }}-{{ release }}.yml"
+
   - name: Wait for test containers to come online
     lxc_container:
       name: "{{ host_prefix }}{{ '%s' | format(item) }}"
-      container_command: "until (grep -q '^up$' /sys/class/net/eth0/operstate); do printf . && sleep 1; done; sleep 2"
+      container_command: "sleep 2; until (grep -q '^up$' /sys/class/net/eth0/operstate); do printf . && sleep 1; done; sleep 2"
     changed_when: false
     register: containers
     with_sequence: count="{{ host_quantity | int }}" format="%02d"
@@ -62,6 +61,12 @@
   - debug:
       var: containers
       verbosity: 2
+
+  - include: "{{ item }}"
+    with_first_found:
+      - files:
+        - "{{ template }}-{{ release }}-post.yml"
+        skip: true
 
   - set_fact:
       lxc_hosts: "{{ lxc_hosts | default([]) | union([{'host': item.name, 'ip': item.ips[0]}]) }}"

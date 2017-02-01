@@ -11,11 +11,4 @@
     root_expire_password: no
   with_sequence: count="{{ host_quantity | int }}" format="%02d"
 
-- name: Post configuration on CentOS containers
-  lxc_container:
-    name: "{{ __centos_cts.results[(item|int)-1].lxc_container.name }}"
-    container_command: "yum install -y epel-release ca-certificates sudo"
-  with_sequence: count="{{ host_quantity | int }}"
-  when: "{{ __centos_cts.results[(item|int)-1] | changed }}"
-
 # vim:ft=ansible:
