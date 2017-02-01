@@ -62,11 +62,13 @@
       var: containers
       verbosity: 2
 
-  - include: "{{ item }}"
+  - include: "{{ file_item }}"
     with_first_found:
       - files:
         - "{{ template }}-{{ release }}-post.yml"
         skip: true
+    loop_control:
+      loop_var: file_item
 
   - set_fact:
       lxc_hosts: "{{ lxc_hosts | default([]) | union([{'host': item.name, 'ip': item.ips[0]}]) }}"
