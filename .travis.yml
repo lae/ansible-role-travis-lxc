@@ -6,6 +6,7 @@ cache:
   pip: true
 env:
   - LXC_DISTRO=debian LXC_RELEASE=jessie
+  - LXC_DISTRO=debian LXC_RELEASE=wheezy
   - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
   - LXC_DISTRO=centos LXC_RELEASE=7
 before_cache:
