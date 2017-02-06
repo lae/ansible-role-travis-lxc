@@ -1,5 +1,5 @@
 ---
-- name: Post configuration on CentOS 7 container(s)
+- name: Post configuration on CentOS 6 container(s)
   lxc_container:
     name: "{{ __centos_cts.results[(item|int)-1].lxc_container.name }}"
     container_command: "yum install -y epel-release ca-certificates sudo"
