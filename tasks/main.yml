@@ -53,7 +53,7 @@
   - name: Wait for test containers to come online
     lxc_container:
       name: "{{ host_prefix }}{{ '%s' | format(item) }}"
-      container_command: "sleep 2; until (grep -q '^up$' /sys/class/net/eth0/operstate); do printf . && sleep 1; done; sleep 2"
+      container_command: "until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done"
     changed_when: false
     register: containers
     with_sequence: count="{{ host_quantity | int }}" format="%02d"
