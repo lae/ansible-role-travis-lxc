@@ -20,9 +20,9 @@ install:
 - ansible --version
 - printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
 script:
-- ansible-playbook .travis-playbook.yml --syntax-check
-- ansible-playbook -vvv .travis-playbook.yml
-- unbuffer ansible-playbook .travis-playbook.yml >/tmp/idempotency.log 2>&1
+- ansible-playbook -i test01.lxc, .travis-playbook.yml --syntax-check
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i test01.lxc, -vvv .travis-playbook.yml
+- unbuffer ansible-playbook -i test01.lxc, .travis-playbook.yml >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
