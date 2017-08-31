@@ -4,6 +4,8 @@ dist: trusty
 cache:
   directories: [ '$HOME/lxc' ]
   pip: true
+matrix:
+  fast_finish: true
 env:
   - LXC_DISTRO=debian LXC_RELEASE=stretch
   - LXC_DISTRO=debian LXC_RELEASE=jessie
