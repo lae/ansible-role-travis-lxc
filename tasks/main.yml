@@ -53,6 +53,15 @@
     ssh_key_type: rsa
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
+- name: Identify Travis CI's local Ubuntu mirror
+  shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'
+  changed_when: False
+  register: __travis_ubuntu_mirror_lookup
+
+- name: Set fact for which mirror to use for Ubuntu LXC containers
+  set_fact:
+    __travis_ubuntu_mirror: "{{ __travis_ubuntu_mirror_lookup.stdout if __travis_ubuntu_mirror_lookup.stdout != '' else 'http://mirrors.us.kernel.org/ubuntu' }}"
+
 - block:
   - include: "{{ template }}-{{ release }}.yml"
 
