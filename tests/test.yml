@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  remote_user: root
   tasks:
     - block:
       - name: Module Test - apt_key
