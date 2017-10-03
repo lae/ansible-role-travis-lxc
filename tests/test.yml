@@ -2,15 +2,16 @@
 - hosts: all
   remote_user: root
   tasks:
+    - name: Module Test - apt_key
+      apt_key:
+        url: https://ftp-master.debian.org/keys/archive-key-9.asc
+        id: E1CF20DDFFE4B89E802658F1E0B11894F66AEC98
+        state: present
+      when: "ansible_pkg_mgr == 'apt'"
+    - name: Module Test - uri
+      uri:
+        url: https://google.com
     - block:
-      - name: Module Test - apt_key
-        apt_key:
-          id: E1CF20DDFFE4B89E802658F1E0B11894F66AEC98
-          state: present
-        when: "ansible_pkg_mgr == 'apt'"
-      - name: Module Test - uri
-        uri:
-          uri: https://google.com
       - name: System Logs
         shell: "PAGER=cat journalctl -xn || cat /var/log/messages || cat /var/log/syslog"
       ignore_errors: yes
