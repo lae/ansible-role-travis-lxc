@@ -5,6 +5,6 @@ release: "{{ lookup('env', 'LXC_RELEASE') | default('jessie', true) }}"
 host_prefix: test
 host_quantity: 1
 container_config:
-  - "lxc.aa_profile=unconfined"
-  - "lxc.mount.auto=proc:rw sys:rw cgroup-full:rw"
-  - "lxc.cgroup.devices.allow=a *:* rmw"
+  - "lxc.apparmor.profile = unconfined"
+  - "lxc.mount.auto = proc:rw sys:rw cgroup-full:rw"
+  - "lxc.cgroup.devices.allow = a *:* rmw"
