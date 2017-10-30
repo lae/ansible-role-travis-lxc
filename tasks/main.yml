@@ -17,7 +17,7 @@
 
   - name: Set Travis Docker repository to only pull 64-bit
     replace:
-      path: /etc/apt/sources.list.d/docker.list
+      dest: /etc/apt/sources.list.d/docker.list
       regexp: '^deb\s+"http'
       replace: 'deb [arch=amd64] "http'
 
