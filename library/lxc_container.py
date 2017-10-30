@@ -436,10 +436,12 @@ else:
     HAS_LXC = True
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.parsing.convert_bool import BOOLEANS_FALSE, BOOLEANS_TRUE
 from ansible.module_utils.six.moves import xrange
 from ansible.module_utils._text import to_text, to_bytes
 
+# Backport support for this module on Ansible 2.2/2.3
+BOOLEANS_TRUE = frozenset(('y', 'yes', 'on', '1', 'true', 't', 1, 1.0, True))
+BOOLEANS_FALSE = frozenset(('n', 'no', 'off', '0', 'false', 'f', 0, 0.0, False))
 
 # LXC_COMPRESSION_MAP is a map of available compression types when creating
 # an archive of a container.
