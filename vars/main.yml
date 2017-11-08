@@ -8,3 +8,7 @@ travis_lxc_packages:
   - debootstrap
 travis_lxc_eggs:
   - lxc-python2
+network config:
+  - "lxc.net.0.type = veth"
+  - "lxc.net.0.link = lxcbr0"
+  - "lxc.net.0.flags = up"
