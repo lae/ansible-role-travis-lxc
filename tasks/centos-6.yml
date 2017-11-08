@@ -3,7 +3,7 @@
   lxc_container:
     name: "{{ host_prefix }}{{ '%s' | format(item) }}"
     template: "{{ template }}"
-    template_options: "-R {{ release }}"
+    template_options: "--release {{ release }}"
     container_config: "{{ container_config }}"
     state: started
   register: __centos_cts

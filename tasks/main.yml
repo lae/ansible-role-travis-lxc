@@ -2,6 +2,7 @@
 # tasks file for ansible-role-travis-lxc
 - set_fact:
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
+    container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
 
 - block:
   - name: Symlink OS python-apt into Travis Python virtualenv
@@ -36,8 +37,9 @@
 
 - name: Install needed Python libraries
   pip:
-    name: "{{ travis_lxc_eggs }}"
+    name: "{{ item }}"
     state: latest
+  with_items: "{{ travis_lxc_eggs }}"
 
 - name: Create SSH directory for current user
   file:
