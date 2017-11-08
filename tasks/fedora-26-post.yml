@@ -2,7 +2,7 @@
 - name: Post configuration on Fedora 26 container(s)
   lxc_container:
     name: "{{ __fedora_cts.results[(item|int)-1].lxc_container.name }}"
-    container_command: "yum install -y epel-release ca-certificates sudo redhat-lsb-core"
+    container_command: "yum install -y ca-certificates python"
   with_sequence: count="{{ host_quantity | int }}"
   when: __fedora_cts.results[(item|int)-1] | changed
 
