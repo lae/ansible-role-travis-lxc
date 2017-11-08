@@ -15,6 +15,9 @@ env:
   - LXC_DISTRO=ubuntu LXC_RELEASE=precise
   - LXC_DISTRO=centos LXC_RELEASE=7
   - LXC_DISTRO=centos LXC_RELEASE=6
+  - LXC_DISTRO=fedora LXC_RELEASE=24
+  - LXC_DISTRO=fedora LXC_RELEASE=25
+  - LXC_DISTRO=fedora LXC_RELEASE=26
   - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.2.0,<2.3.0' #2.2.x
   - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' #2.3.x
   - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' #2.4.x

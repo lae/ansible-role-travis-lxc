@@ -36,8 +36,9 @@
 
 - name: Install needed Python libraries
   pip:
-    name: "{{ travis_lxc_eggs }}"
+    name: "{{ item }}"
     state: latest
+  with_items: "{{ travis_lxc_eggs }}"
 
 - name: Create SSH directory for current user
   file:
