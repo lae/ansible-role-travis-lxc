@@ -1,5 +1,5 @@
 ---
-- name: Create Debian Trusty (7) test container(s)
+- name: Create Debian Wheezy (7) test container(s)
   lxc_container:
     name: "{{ host_prefix }}{{ '%s' | format(item) }}"
     template: "{{ template }}"
