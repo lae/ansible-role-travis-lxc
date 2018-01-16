@@ -33,12 +33,12 @@ install:
 - printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
 script:
 - ansible-playbook -i test01.lxc, tests/deploy.yml --syntax-check
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i test01.lxc, -vvv tests/deploy.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i test01.lxc, -v tests/deploy.yml
 - unbuffer ansible-playbook -i test01.lxc, tests/deploy.yml >/tmp/idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
   (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
   exit 1)'
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i test01.lxc, -vvv tests/test.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i test01.lxc, -v tests/test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   slack:
