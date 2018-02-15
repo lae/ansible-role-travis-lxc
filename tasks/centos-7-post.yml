@@ -5,5 +5,6 @@
     container_command: "yum install -y ca-certificates sudo redhat-lsb-core"
   with_sequence: count="{{ host_quantity | int }}"
   when: __centos_cts.results[(item|int)-1] | changed
+  become: True
 
 # vim:ft=ansible:

@@ -10,5 +10,6 @@
   environment:
     root_expire_password: no
   with_sequence: count="{{ host_quantity | int }}" format="%02d"
+  become: True
 
 # vim:ft=ansible:
