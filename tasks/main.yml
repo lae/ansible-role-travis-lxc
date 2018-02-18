@@ -7,7 +7,7 @@
 - name: Check if requested distribution is supported
   fail:
     msg: "The selected distribution is not supported (template: {{ template }}, release: {{ release }})"
-  when: "'{{ template }}:{{ release }}' not in travis_lxc_supported_distributions"
+  when: "'{{ template }}.{{ release }}' not in travis_lxc_supported_distributions"
 
 - block:
   - name: Symlink OS python-apt into Travis Python virtualenv
