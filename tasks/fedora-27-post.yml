@@ -1,5 +1,5 @@
 ---
-- name: Post configuration on Fedora 24 container(s)
+- name: Post configuration on Fedora 27 container(s)
   lxc_container:
     name: "{{ __fedora_cts.results[(item|int)-1].lxc_container.name }}"
     container_command: "dnf install -y ca-certificates python"

@@ -1,5 +1,5 @@
 ---
-- name: Create Fedora 24 test container(s)
+- name: Create Fedora 27 test container(s)
   lxc_container:
     name: "{{ host_prefix }}{{ '%s' | format(item) }}"
     template: "{{ template }}"
