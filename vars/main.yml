@@ -1,5 +1,17 @@
 ---
 # vars file for ansible-role-travis-lxc
+travis_lxc_supported_distributions:
+  - "debian:wheezy"
+  - "debian:jessie"
+  - "debian:stretch"
+  - "ubuntu:precise"
+  - "ubuntu:trusty"
+  - "ubuntu:xenial"
+  - "centos:6"
+  - "centos:7"
+  - "fedora:25"
+  - "fedora:26"
+  - "fedora:27"
 travis_lxc_packages:
   - lxc
   - lxc-templates

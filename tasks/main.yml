@@ -4,6 +4,11 @@
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
 
+- name: Check if requested distribution is supported
+  fail:
+    msg: "The selected distribution is not supported (template: {{ template }}, release: {{ release }})"
+  when: "'{{ template }}:{{ release }}' not in travis_lxc_supported_distributions"
+
 - block:
   - name: Symlink OS python-apt into Travis Python virtualenv
     file:
