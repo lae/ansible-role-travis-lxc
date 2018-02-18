@@ -3,11 +3,15 @@
 - set_fact:
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
+    __distro: "{{ template }}.{{ release }}"
 
 - name: Check if requested distribution is supported
   fail:
     msg: "The selected distribution is not supported (template: {{ template }}, release: {{ release }})"
-  when: "'{{ template }}.{{ release }}' not in travis_lxc_supported_distributions"
+  when: __distro not in travis_lxc_distributions
+
+- name: Load template-specific variables
+  include_vars: "{{ template }}.yml"
 
 - block:
   - name: Symlink OS python-apt into Travis Python virtualenv
@@ -70,7 +74,16 @@
     __travis_ubuntu_mirror: "{{ __travis_ubuntu_mirror_lookup.stdout if __travis_ubuntu_mirror_lookup.stdout != '' else 'http://mirrors.us.kernel.org/ubuntu' }}"
 
 - block:
-  - include: "{{ template }}-{{ release }}.yml"
+  - name: Create {{ travis_lxc_distributions[__distro] }} test container(s)
+    lxc_container:
+      name: "{{ host_prefix }}{{ '%s' | format(item) }}"
+      template: "{{ template }}"
+      template_options: "--release {{ release }}{% if template in ['debian', 'ubuntu'] %} --mirror {% if template == 'ubuntu' %}{{ __travis_ubuntu_mirror }}{% else %}http://deb.debian.org/debian{% endif %} --packages {{ travis_lxc_template_packages | join(',') }}{% endif %}"
+      container_config: "{{ container_config }}"
+      state: started
+    register: __ct_creation
+    environment: "{{ travis_lxc_template_environment | default(omit) }}"
+    with_sequence: count="{{ host_quantity | int }}" format="%02d"
 
   - name: Wait for test containers to come online
     lxc_container:
@@ -84,13 +97,14 @@
       var: containers
       verbosity: 2
 
-  - include: "{{ file_item }}"
-    with_first_found:
-      - files:
-        - "{{ template }}-{{ release }}-post.yml"
-        skip: true
-    loop_control:
-      loop_var: file_item
+  - name: Post configuration on {{ travis_lxc_distributions[__distro] }} container(s)
+    lxc_container:
+      name: "{{ __ct_creation.results[(item|int)-1].lxc_container.name }}"
+      container_command: "{{ travis_lxc_template_container_command }}"
+    with_sequence: count="{{ host_quantity | int }}"
+    when:
+      - travis_lxc_template_container_command is defined
+      - __ct_creation.results[(item|int)-1] | changed
 
   - set_fact:
       lxc_hosts: "{{ lxc_hosts | default([]) | union([{'host': item.name, 'ip': item.ips[0]}]) }}"

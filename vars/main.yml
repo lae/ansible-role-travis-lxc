@@ -1,6 +1,6 @@
 ---
 # vars file for ansible-role-travis-lxc
-travis_lxc_supported_distributions:
+travis_lxc_distributions:
   debian.wheezy: "Debian Wheezy (7)"
   debian.jessie: "Debian Jessie (8)"
   debian.stretch: "Debian Stretch (9)"

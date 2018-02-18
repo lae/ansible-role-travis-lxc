@@ -1,0 +1,6 @@
+---
+travis_lxc_template_packages:
+  - python
+  - ca-certificates
+  - curl
+  - sudo
