@@ -6,6 +6,6 @@ travis_lxc_template_packages:
   - redhat-lsb-core
 travis_lxc_template_environment:
   root_expire_password: no
-travis_lxc_template_container_command: "yum install -y {{ travis_lxc_template_packages | join(' ') }}"
+travis_lxc_template_container_command: "yum install -y {{ (travis_lxc_template_packages + additional_packages) | join(' ') }}"
 
 # vim:ft=ansible:

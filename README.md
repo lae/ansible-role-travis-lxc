@@ -48,6 +48,13 @@ mounting a shared folder):
       - "lxc.mount.auto=proc:rw sys:rw cgroup-full:rw"
       - "lxc.cgroup.devices.allow=a *:* rmw"
 
+On the off-chance you need to ("missing" packages should be installed by default
+within this role, so open an issue), you can install extra packages inside the
+test containers as well:
+
+    additional_packages:
+      - make
+
 Example Playbook
 ----------------
 

@@ -8,3 +8,4 @@ container_config:
   - "lxc.apparmor.profile = unconfined"
   - "lxc.mount.auto = proc:rw sys:rw cgroup-full:rw"
   - "lxc.cgroup.devices.allow = a *:* rmw"
+additional_packages: []

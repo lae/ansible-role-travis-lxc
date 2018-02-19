@@ -5,6 +5,6 @@ travis_lxc_template_packages:
   - sudo
 travis_lxc_template_environment:
   root_expire_password: no
-travis_lxc_template_container_command: "dnf install -y {{ travis_lxc_template_packages | join(' ') }}"
+travis_lxc_template_container_command: "dnf install -y {{ (travis_lxc_template_packages + additional_packages) | join(' ') }}"
 
 # vim:ft=ansible:
