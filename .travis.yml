@@ -7,7 +7,10 @@ cache:
 matrix:
   fast_finish: true
 env:
-  - LXC_DISTRO=debian LXC_RELEASE=stretch
+  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' #2.5 DEVEL
+  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' #2.4.x
+  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' #2.3.x
+  - ANSIBLE_VERSION='ansible>=2.2.0,<2.3.0' #2.2.x
   - LXC_DISTRO=debian LXC_RELEASE=jessie
   - LXC_DISTRO=debian LXC_RELEASE=wheezy
   - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
@@ -15,13 +18,9 @@ env:
   - LXC_DISTRO=ubuntu LXC_RELEASE=precise
   - LXC_DISTRO=centos LXC_RELEASE=7
   - LXC_DISTRO=centos LXC_RELEASE=6
-  - LXC_DISTRO=fedora LXC_RELEASE=25
-  - LXC_DISTRO=fedora LXC_RELEASE=26
   - LXC_DISTRO=fedora LXC_RELEASE=27
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.2.0,<2.3.0' #2.2.x
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' #2.3.x
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' #2.4.x
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' #2.5 DEVEL
+  - LXC_DISTRO=fedora LXC_RELEASE=26
+  - LXC_DISTRO=fedora LXC_RELEASE=25
 
 before_cache:
 - sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. $HOME/lxc/cache.tar
