@@ -16,12 +16,17 @@ following `env` config in your `.travis.yml` will test against all supported
 LXC templates:
 
     env:
+      - LXC_DISTRO=debian LXC_RELEASE=stretch
       - LXC_DISTRO=debian LXC_RELEASE=jessie
       - LXC_DISTRO=debian LXC_RELEASE=wheezy
       - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
       - LXC_DISTRO=ubuntu LXC_RELEASE=trusty
+      - LXC_DISTRO=ubuntu LXC_RELEASE=precise
       - LXC_DISTRO=centos LXC_RELEASE=7
       - LXC_DISTRO=centos LXC_RELEASE=6
+      - LXC_DISTRO=fedora LXC_RELEASE=25
+      - LXC_DISTRO=fedora LXC_RELEASE=26
+      - LXC_DISTRO=fedora LXC_RELEASE=27
 
 The default template this role uses is the Debian Jessie template:
 
