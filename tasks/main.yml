@@ -78,7 +78,7 @@
     lxc_container:
       name: "{{ host_prefix }}{{ '%s' | format(item) }}"
       template: "{{ template }}"
-      template_options: "--release {{ release }}{% if template in ['debian', 'ubuntu'] %} --mirror {% if template == 'ubuntu' %}{{ __travis_ubuntu_mirror }}{% else %}http://deb.debian.org/debian{% endif %} --packages {{ travis_lxc_template_packages | join(',') }}{% endif %}"
+      template_options: "--release {{ release }}{% if template in ['debian', 'ubuntu'] %} --mirror {% if template == 'ubuntu' %}{{ __travis_ubuntu_mirror }}{% else %}http://deb.debian.org/debian{% endif %} --packages {{ (travis_lxc_template_packages + additional_packages) | join(',') }}{% endif %}"
       container_config: "{{ container_config }}"
       state: started
     register: __ct_creation
