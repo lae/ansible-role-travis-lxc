@@ -54,11 +54,6 @@ Example Playbook
 See `example.yml`, as well as `.travis.yml`. Some more concrete documentation
 will be written later.
 
-License
--------
-
-MIT
-
 Contributors
 ------------
 
