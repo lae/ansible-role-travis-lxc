@@ -59,7 +59,8 @@ License
 
 MIT
 
-Author Information
-------------------
+Contributors
+------------
 
-Musee Ullah <lae@lae.is>
+Musee Ullah <lae@lae.is> (author and maintainer)
+Wilmar den Ouden <@wilmardo>
