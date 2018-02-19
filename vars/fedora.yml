@@ -1,0 +1,10 @@
+---
+travis_lxc_template_packages:
+  - python
+  - ca-certificates
+  - sudo
+travis_lxc_template_environment:
+  root_expire_password: no
+travis_lxc_template_container_command: "dnf install -y {{ travis_lxc_template_packages | join(' ') }}"
+
+# vim:ft=ansible:
