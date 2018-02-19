@@ -95,7 +95,7 @@
 
   - debug:
       var: containers
-      verbosity: 2
+      verbosity: 1
 
   - name: Post configuration on {{ travis_lxc_distributions[__distro] }} container(s)
     lxc_container:
