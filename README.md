@@ -64,5 +64,5 @@ will be written later.
 Contributors
 ------------
 
-Musee Ullah <lae@lae.is> (author and maintainer)
+Musee Ullah <lae@lae.is> (author and maintainer)  
 Wilmar den Ouden <@wilmardo>
