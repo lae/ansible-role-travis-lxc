@@ -22,7 +22,7 @@
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
 - block:
-  - name: Create LXC containers for all profiles
+  - name: Create LXC containers for requested test profiles
     lxc_container:
       name: "{{ item.0.profile }}-{{ '%02d' | format(item.1) }}"
       template: "{{ item.0.profile.split('-').0 }}"
@@ -41,10 +41,10 @@
       container_config: "{{ container_config }}"
       state: started
     environment: "{{ travis_lxc_profiles[item.0.profile]['environment'] | default(omit) }}"
-    register: __ct_creation
+    register: __containers
     async: 7200
     poll: 0
-    changed_when: False
+    changed_when: false
     with_nested:
       - "{{ test_profiles }}"
       - "{{ range(1, hosts_per_profile + 1) | list }}"
@@ -52,24 +52,23 @@
   - name: Wait for container creation tasks to complete
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __ct_creation_results
-    until: __ct_creation_results.finished
+    register: __container_create
+    until: __container_create.finished
     retries: 300
-    with_items: "{{ __ct_creation.results }}"
+    with_items: "{{ __containers.results }}"
 
-  - name: Wait for test containers to come online
+  - name: Wait until containers have active IP addresses
     lxc_container:
       name: "{{ host_prefix }}{{ '%s' | format(item) }}"
       name: "{{ item.0.profile }}-{{ '%02d' | format(item.1) }}"
       container_command: "until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done"
     changed_when: false
-    register: containers
     with_nested:
       - "{{ test_profiles }}"
       - "{{ range(1, hosts_per_profile + 1) | list }}"
 
   - debug:
-      var: containers
+      var: __containers
       verbosity: 1
 
   - name: Post configuration on {{ travis_lxc_distributions[__distro] }} container(s)
