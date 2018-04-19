@@ -1,1 +1,11 @@
-test[01:02].lxc
+debian-stretch-[01:02]
+debian-jessie-[01:02]
+debian-wheezy-[01:02]
+centos-7-[01:02]
+centos-6-[01:02]
+ubuntu-xenial-[01:02]
+ubuntu-trusty-[01:02]
+ubuntu-precise-[01:02]
+fedora-27-[01:02]
+fedora-26-[01:02]
+fedora-25-[01:02]
