@@ -40,11 +40,21 @@
         {% endif %}
       container_config: "{{ container_config }}"
       state: started
-    register: __ct_creation
     environment: "{{ travis_lxc_profiles[item.0.profile]['environment'] | default(omit) }}"
+    register: __ct_creation
+    async: 7200
+    poll: 0
     with_nested:
       - "{{ test_profiles }}"
       - "{{ range(1, hosts_per_profile + 1) | list }}"
+
+  - name: Wait for container creation tasks to complete
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __ct_creation_results
+    until: __ct_creation_results.finished
+    retries: 300
+    with_items: "{{ __ct_creation.results }}"
 
   - name: Wait for test containers to come online
     lxc_container:
