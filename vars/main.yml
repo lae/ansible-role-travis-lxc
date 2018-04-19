@@ -1,17 +1,17 @@
 ---
 # vars file for ansible-role-travis-lxc
 travis_lxc_distributions:
-  debian.wheezy: "Debian Wheezy (7)"
-  debian.jessie: "Debian Jessie (8)"
-  debian.stretch: "Debian Stretch (9)"
-  ubuntu.precise: "Ubuntu Precise Pangolin (12.04)"
-  ubuntu.trusty: "Ubuntu Trusty Tahr (14.04)"
-  ubuntu.xenial: "Ubuntu Xenus Xenial (16.04)"
-  centos.6: "CentOS 6"
-  centos.7: "CentOS 7"
-  fedora.25: "Fedora 25"
-  fedora.26: "Fedora 26"
-  fedora.27: "Fedora 27"
+  debian-wheezy: "Debian Wheezy (7)"
+  debian-jessie: "Debian Jessie (8)"
+  debian-stretch: "Debian Stretch (9)"
+  ubuntu-precise: "Ubuntu Precise Pangolin (12.04)"
+  ubuntu-trusty: "Ubuntu Trusty Tahr (14.04)"
+  ubuntu-xenial: "Ubuntu Xenus Xenial (16.04)"
+  centos-6: "CentOS 6"
+  centos-7: "CentOS 7"
+  fedora-25: "Fedora 25"
+  fedora-26: "Fedora 26"
+  fedora-27: "Fedora 27"
 travis_lxc_packages:
   - lxc
   - lxc-templates

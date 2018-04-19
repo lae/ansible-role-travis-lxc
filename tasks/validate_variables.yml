@@ -1,0 +1,18 @@
+---
+- assert:
+    that:
+      - test_profiles is iterable
+      - test_profiles is not string
+    msg: "The variable 'test_profiles' must be a list."
+
+- assert:
+    that:
+      - "'profile' in item.1"
+    msg: "'profile' is not defined for profile #{{ item.0 + 1 }} in 'test_profiles': {{ item.1 | to_yaml | trim }}"
+  with_indexed_items: "{{ test_profiles }}"
+
+- assert:
+    that:
+      - item.profile in travis_lxc_distributions
+    msg: "{{ item.profile }} is not a supported profile. If you believe this should be a valid profile, please open an issue to request support for it."
+  with_items: "{{ test_profiles }}"

@@ -7,4 +7,16 @@
     additional_packages:
       - make
       - m4
-    host_quantity: 2
+    hosts_per_profile: 2
+    test_profiles:
+      - profile: debian-stretch
+      - profile: debian-jessie
+      - profile: debian-wheezy
+      - profile: centos-7
+      - profile: centos-6
+      - profile: ubuntu-xenial
+      - profile: ubuntu-trusty
+      - profile: ubuntu-precise
+      - profile: fedora-27
+      - profile: fedora-26
+      - profile: fedora-25
