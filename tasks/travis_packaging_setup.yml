@@ -29,3 +29,12 @@
     name: "{{ item }}"
     state: latest
   with_items: "{{ travis_lxc_eggs }}"
+
+- name: Identify Travis CI's local Ubuntu mirror
+  shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'
+  changed_when: False
+  register: __travis_ubuntu_mirror_lookup
+
+- name: Set fact for which mirror to use for Ubuntu LXC containers
+  set_fact:
+    __travis_ubuntu_mirror: "{{ __travis_ubuntu_mirror_lookup.stdout if __travis_ubuntu_mirror_lookup.stdout != '' else 'http://mirror.math.princeton.edu/pub/ubuntu' }}"

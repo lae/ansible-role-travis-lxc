@@ -10,7 +10,6 @@
 - name: Load template-specific variables
   include_vars: "{{ template }}.yml"
 
-
 - name: Create SSH directory for current user
   file:
     path: "~{{ ansible_user_id }}/.ssh"
@@ -24,15 +23,6 @@
     ssh_key_file: "~{{ ansible_user_id }}/.ssh/id_rsa"
     ssh_key_type: rsa
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
-
-- name: Identify Travis CI's local Ubuntu mirror
-  shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'
-  changed_when: False
-  register: __travis_ubuntu_mirror_lookup
-
-- name: Set fact for which mirror to use for Ubuntu LXC containers
-  set_fact:
-    __travis_ubuntu_mirror: "{{ __travis_ubuntu_mirror_lookup.stdout if __travis_ubuntu_mirror_lookup.stdout != '' else 'http://mirrors.us.kernel.org/ubuntu' }}"
 
 - block:
   - name: Create {{ travis_lxc_distributions[__distro] }} test container(s)
