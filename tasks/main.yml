@@ -5,46 +5,11 @@
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
 
 - include: validate_variables.yml
+- include: travis_packaging_setup.yml
 
 - name: Load template-specific variables
   include_vars: "{{ template }}.yml"
 
-- block:
-  - name: Symlink OS python-apt into Travis Python virtualenv
-    file:
-      src: "/usr/lib/python2.7/dist-packages/{{ item }}"
-      path: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python2.7/site-packages/{{ item }}"
-      state: link
-    with_items:
-      - apt
-      - apt_pkg.so
-      - apt_inst.so
-      - aptsources
-
-  - name: Set Travis Docker repository to only pull 64-bit
-    replace:
-      dest: /etc/apt/sources.list.d/docker.list
-      regexp: '^deb\s+"http'
-      replace: 'deb [arch=amd64] "http'
-
-  - name: Configure LXC PPA
-    apt_repository:
-      repo: "ppa:ubuntu-lxc/stable"
-
-  - name: Install needed packages
-    apt:
-      name: "{{ item }}"
-      update_cache: yes
-      cache_valid_time: 3600
-      state: latest
-    with_items: "{{ travis_lxc_packages }}"
-  become: True
-
-- name: Install needed Python libraries
-  pip:
-    name: "{{ item }}"
-    state: latest
-  with_items: "{{ travis_lxc_eggs }}"
 
 - name: Create SSH directory for current user
   file:
