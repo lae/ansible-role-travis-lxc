@@ -13,6 +13,6 @@
 
 - assert:
     that:
-      - item.profile in travis_lxc_distributions
+      - item.profile in travis_lxc_profiles
     msg: "{{ item.profile }} is not a supported profile. If you believe this should be a valid profile, please open an issue to request support for it."
   with_items: "{{ test_profiles }}"
