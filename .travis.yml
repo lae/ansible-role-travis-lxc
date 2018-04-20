@@ -19,7 +19,7 @@ install:
 - sudo apt-get install -y expect-dev
 - if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible; fi
 - ansible --version
-- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
+- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks\nforks=50' >ansible.cfg
 script:
 - ansible-playbook -i tests/inventory tests/deploy.yml --syntax-check
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i tests/inventory -v tests/deploy.yml
