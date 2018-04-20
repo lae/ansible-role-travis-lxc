@@ -17,15 +17,17 @@ install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || true
 - if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible; fi
 - ansible --version
-- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks\nforks=50' >ansible.cfg
+- sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles # Ansible 2.3 defaults to /etc/ansible/roles
+- git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc
+before_script: cd tests/
 script:
-- ansible-playbook -i tests/inventory tests/deploy.yml --syntax-check
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i tests/inventory -v tests/deploy.yml
-- unbuffer ansible-playbook -i tests/inventory tests/deploy.yml >/tmp/idempotency.log 2>&1
-- 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
-  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
+- ansible-playbook -i inventory deploy.yml --syntax-check
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v deploy.yml
+- unbuffer ansible-playbook -i inventory deploy.yml >idempotency.log 2>&1
+- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0" &&
+  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log;
   exit 1)'
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i tests/inventory -v tests/test.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   slack:
