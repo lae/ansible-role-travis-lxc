@@ -22,26 +22,86 @@
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
 - block:
-  - name: Create LXC containers for requested test profiles
+  - name: Prepare a single LXC container per profile for base images
     lxc_container:
-      name: "{{ item.0.prefix | default(item.0.profile) }}{{ item.1 }}"
-      template: "{{ item.0.profile.split('-').0 }}"
-      template_options: >-
-        {% set __profile = item.0.profile.split('-') %}
-        --release {{ __profile.1 }}
-        {% if __profile.0 in ['debian', 'ubuntu'] %}
-        --mirror
-        {% if __profile.0 == 'ubuntu' %}
-        {{ __travis_ubuntu_mirror }}
-        {% else %}
-        http://deb.debian.org/debian
-        {% endif %}
-        --packages {{ (travis_lxc_profiles[item.0.profile]['packages'] + additional_packages) | join(',') }}
-        {% endif %}
+      name: "{{ item.prefix | default(item.profile) }}"
+      template: "{{ __template }}"
+      template_options: "\
+        --release {{ __release }}
+        {% if __template == 'debian' %}\
+        --mirror http://deb.debian.org/debian
+        {% elif __template == 'ubuntu' %}\
+        --mirror {{ __travis_ubuntu_mirror }}
+        {% endif %}\
+        {% if __template != 'centos' %}\
+        --packages {{ __packages | join(' ' if __template == 'fedora' else ',') }}
+        {% endif %}"
       container_config: "{{ container_config }}"
-      state: started
-    environment: "{{ travis_lxc_profiles[item.0.profile]['environment'] | default(omit) }}"
-    register: __container_creation_jobs
+      state: stopped
+    environment: "{{ travis_lxc_profiles[item.profile].environment | default({}) }}"
+    register: __base_ct_jobs
+    async: 7200
+    poll: 0
+    changed_when: false
+    with_items:
+      - "{{ test_profiles }}"
+    vars:
+      __template: "{{ item.profile.split('-').0 }}"
+      __release: "{{ item.profile.split('-').1 }}"
+      __packages: "{{ travis_lxc_profiles[item.profile].packages + additional_packages }}"
+
+  - name: Wait for base containers to finish bootstrapping
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __base_cts
+    until: __base_cts.finished
+    retries: 300
+    with_items: "{{ __base_ct_jobs.results }}"
+
+  - name: Install packages in containers using the CentOS template
+    lxc_container:
+      name: "{{ item.lxc_container.name }}"
+      container_command: "\
+        until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done;
+        yum install -y {{ (travis_lxc_profiles[item.item.item.profile].packages + additional_packages) | join(' ') }}"
+    register: __post_bootstrap_jobs
+    async: 7200
+    poll: 0
+    changed_when: false
+    with_items: "{{ __base_cts.results }}"
+    when:
+      - item | changed
+      - "item.invocation.module_args.template == 'centos'"
+
+  - name: Wait for package installations to complete in CentOS containers
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __post_bootstrap
+    until: __post_bootstrap.finished
+    retries: 300
+    with_items: "{{ __post_bootstrap_jobs.results }}"
+    when: "'ansible_job_id' in item"
+
+  - name: Create an .ssh directory in the base containers
+    file:
+      path: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/"
+      state: directory
+      mode: 0700
+    with_items: "{{ __base_cts.results }}"
+
+  - name: Copy current user's public key into base containers
+    copy:
+      src: "~/.ssh/id_rsa.pub"
+      dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/authorized_keys"
+      mode: 0600
+    with_items: "{{ __base_cts.results }}"
+
+  - name: Create all of our test LXC containers via cloning
+    lxc_container:
+      name: "{{ item.0.prefix | default(item.0.profile) }}"
+      clone_name: "{{ item.0.prefix | default(item.0.profile) }}{{ item.1 }}"
+      state: stopped
+    register: __clone_jobs
     async: 7200
     poll: 0
     changed_when: false
@@ -49,15 +109,23 @@
       - "{{ test_profiles }}"
       - "{{ test_host_suffixes }}"
 
-  - name: Wait for container creation tasks to complete
+  - name: Wait for all of the clone jobs to complete
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __containers
-    until: __containers.finished
+    register: __clone
+    until: __clone.finished
     retries: 300
-    with_items: "{{ __container_creation_jobs.results }}"
+    with_items: "{{ __clone_jobs.results }}"
+    when: "'ansible_job_id' in item"
 
-  - name: Wait until containers have active IP addresses
+  - name: Bring up all of the test LXC containers
+    lxc_container:
+      name: "{{ item.invocation.module_args.clone_name }}"
+      state: started
+    register: __containers
+    with_items: "{{ __clone.results }}"
+
+  - name: Wait for network connectivity on all containers
     lxc_container:
       name: "{{ item.lxc_container.name }}"
       container_command: "until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done"
@@ -65,44 +133,13 @@
     changed_when: false
     with_items: "{{ __containers.results }}"
 
-  - name: Install packages in RHEL-based containers
-    lxc_container:
-      name: "{{ item.lxc_container.name }}"
-      container_command: >-
-        {% if item.invocation.module_args.template == 'fedora' %}
-        dnf install -y
-        {% else %}
-        yum install -y
-        {% endif %}
-        {{ (travis_lxc_profiles[item.item.item.0.profile]['packages'] + additional_packages) | join(' ') }}
-    register: __container_post_jobs
-    async: 7200
-    poll: 0
-    changed_when: false
-    with_items: "{{ __containers.results }}"
-    when:
-      - item | changed
-      - "item.invocation.module_args.template is in ['centos', 'fedora']"
-
-  - name: Wait for RHEL package installations to complete
-    async_status:
-      jid: "{{ item.ansible_job_id }}"
-    register: __async_status
-    until: __async_status.finished
-    retries: 300
-    with_items: "{{ __container_post_jobs.results }}"
-    when: "'ansible_job_id' in item"
-
-  - debug:
-      var: __containers
-      verbosity: 2
-
-  - debug:
-      var: __container_addresses
-      verbosity: 2
-
   - set_fact:
-      lxc_hosts: "{% set __hosts = [] %}{% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}{{ __hosts.append({'name': ct.name, 'ip': ct.ips[0]}) }}{% endfor %}{{ __hosts }}"
+      lxc_hosts: "[\
+        {% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}\
+        {'name': '{{ ct.name }}', 'ip': '{{ ct.ips[0] }}'}\
+        {% if not loop.last %}, {% endif %}\
+        {% endfor %}\
+        ]"
 
   - name: Populate Travis' /etc/hosts with every container's addresses
     lineinfile:
@@ -117,19 +154,6 @@
       dest: "/var/lib/lxc/{{ item.name }}/rootfs/etc/hosts"
     with_items: "{{ lxc_hosts }}"
 
-  - name: Create .ssh directory in containers
-    file:
-      path: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/"
-      state: directory
-      mode: 0700
-    with_items: "{{ lxc_hosts }}"
-
-  - name: Copy current user's public key into containers
-    copy:
-      src: "~/.ssh/id_rsa.pub"
-      dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/authorized_keys"
-      mode: 0600
-    with_items: "{{ lxc_hosts }}"
   become: true
 
 - name: Collect SSH host keys from all containers
