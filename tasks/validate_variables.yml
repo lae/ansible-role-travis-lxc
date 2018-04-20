@@ -26,14 +26,14 @@
       {% endif %}
       {% endfor %}
       {{ (__found_prefixes | unique | list | length) == ( __found_prefixes | list | length )}}
-      msg: "There are duplicate prefixes specified in 'test_profiles'. Please ensure that you are not reusing prefix names for multiple profiles or using prefixes that conflict with profile names."
+    msg: "There are duplicate prefixes specified in 'test_profiles'. Please ensure that you are not reusing prefix names for multiple profiles or using prefixes that conflict with profile names."
 
 # Backwards compatibility with environment-specified profiles in <0.7.0
 - set_fact:
     test_profiles:
       - profile: "{{ lookup('env', 'LXC_DISTRO') | default('debian', true) }}-{{ lookup('env', 'LXC_RELEASE') | default('stretch', true) }}"
         prefix: test
-    when: "lookup('env', 'LXC_RELEASE') != '' or lookup('env', 'LXC_DISTRO') != ''"
+  when: "lookup('env', 'LXC_RELEASE') != '' or lookup('env', 'LXC_DISTRO') != ''"
 
 # Backwards compatibility with host_quantity variable from <0.7.0
 # These conditions make it so that if user specifies test_hosts_per_profile and
