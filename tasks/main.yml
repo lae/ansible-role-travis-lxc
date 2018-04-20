@@ -41,7 +41,7 @@
       container_config: "{{ container_config }}"
       state: started
     environment: "{{ travis_lxc_profiles[item.0.profile]['environment'] | default(omit) }}"
-    register: __containers
+    register: __container_creation_jobs
     async: 7200
     poll: 0
     changed_when: false
@@ -52,10 +52,10 @@
   - name: Wait for container creation tasks to complete
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __container_create
-    until: __container_create.finished
+    register: __containers
+    until: __containers.finished
     retries: 300
-    with_items: "{{ __containers.results }}"
+    with_items: "{{ __container_creation_jobs.results }}"
 
   - name: Wait until containers have active IP addresses
     lxc_container:
@@ -70,6 +70,10 @@
 
   - debug:
       var: __containers
+      verbosity: 1
+
+  - debug:
+      var: __container_addresses
       verbosity: 1
 
   - name: Post configuration on {{ travis_lxc_distributions[__distro] }} container(s)
