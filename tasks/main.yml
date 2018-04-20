@@ -92,27 +92,27 @@
       verbosity: 1
 
   - set_fact:
-      lxc_hosts: "{% set __hosts = [] %}{% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}{{ __hosts.append({'host': ct.name, 'ip': ct.ips[0]}) }}{% endfor %}{{ __hosts }}"
+      lxc_hosts: "{% set __hosts = [] %}{% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}{{ __hosts.append({'name': ct.name, 'ip': ct.ips[0]}) }}{% endfor %}{{ __hosts }}"
 
-  - name: Add test container(s) to host's /etc/hosts
+  - name: Populate Travis' /etc/hosts with every container's addresses
     lineinfile:
       dest: /etc/hosts
-      regexp: "^.* {{ item.host }}.lxc"
-      line: "{{ item.ip }} {{ item.host }}.lxc"
+      regexp: "^.* {{ item.name }}"
+      line: "{{ item.ip }} {{ item.name }}.lxc {{ item.name }}"
     with_items: "{{ lxc_hosts }}"
 
-  - name: Add test container(s) to container /etc/hosts
+  - name: Populate every container's /etc/hosts with every container's addresses
     lineinfile:
       dest: "/var/lib/lxc/{{ item.0 }}/rootfs/etc/hosts"
-      regexp: "^.* {{ item.1.host }}.lxc"
-      line: "{{ item.1.ip }} {{ item.1.host }}.lxc"
+      regexp: "^.* {{ item.1.name }}"
+      line: "{{ item.1.ip }} {{ item.1.name }}.lxc {{ item.1.name }}"
     with_nested:
-      - "{{ lxc_hosts | map(attribute='host') | list }}"
+      - "{{ lxc_hosts | map(attribute='name') | list }}"
       - "{{ lxc_hosts }}"
 
   - name: Create .ssh directory in containers
     file:
-      path: "/var/lib/lxc/{{ item.host }}/rootfs/root/.ssh/"
+      path: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/"
       state: directory
       mode: 0700
     with_items: "{{ lxc_hosts }}"
@@ -120,21 +120,21 @@
   - name: Copy current user's public key into containers
     copy:
       src: "~/.ssh/id_rsa.pub"
-      dest: "/var/lib/lxc/{{ item.host }}/rootfs/root/.ssh/authorized_keys"
+      dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/authorized_keys"
       mode: 0600
     with_items: "{{ lxc_hosts }}"
-  become: True
+  become: true
 
-- name: Collect SSH host keys
-  shell: "ssh-keyscan {{ item.host }}.lxc > ~{{ ansible_user_id }}/.ssh/{{ item.host }}.pub"
+- name: Collect SSH host keys from all containers
+  shell: "ssh-keyscan {{ item.name }}.lxc > ~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
   args:
-    creates: "~{{ ansible_user_id }}/.ssh/{{ item.host }}.pub"
+    creates: "~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
   with_items: "{{ lxc_hosts }}"
 
-- name: Add all containers to user's known_hosts
+- name: Add all containers to current user's known_hosts
   blockinfile:
-    marker: "# {mark} {{ item.host }}"
-    content: "{{ lookup('file', '~' + ansible_user_id + '/.ssh/' + item.host + '.pub') }}"
+    marker: "# {mark} {{ item.name }}"
+    content: "{{ lookup('file', '~' + ansible_user_id + '/.ssh/' + item.name + '.pub') }}"
     dest: "~{{ ansible_user_id }}/.ssh/known_hosts"
     create: yes
   with_items: "{{ lxc_hosts }}"
