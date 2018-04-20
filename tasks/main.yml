@@ -78,10 +78,23 @@
         yum install -y
         {% endif %}
         {{ (travis_lxc_profiles[item.item.item.0.profile]['packages'] + additional_packages) | join(' ') }}
+    register: __container_post_jobs
+    async: 7200
+    poll: 0
+    changed_when: false
     with_items: "{{ __containers.results }}"
     when:
       - item | changed
       - "item.invocation.module_args.template is in ['centos', 'fedora']"
+
+  - name: Wait for RHEL package installations to complete
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __async_status
+    until: __async_status.finished
+    retries: 300
+    with_items: "{{ __container_post_jobs.results }}"
+    when: "'ansible_job_id' in item"
 
   - debug:
       var: __containers
