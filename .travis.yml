@@ -7,11 +7,10 @@ cache:
 matrix:
   fast_finish: true
 env:
-  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' #2.6 DEVEL
-  - ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0' #2.4.x
-  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' #2.4.x
-  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' #2.3.x
-  - ANSIBLE_VERSION='ansible>=2.2.0,<2.3.0' #2.2.x
+  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' # 2.6 DEVEL
+  - ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0' # 2.5.x
+  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' # 2.4.x
+  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' # 2.3.x
 before_cache:
 - sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. $HOME/lxc/cache.tar
 install:
