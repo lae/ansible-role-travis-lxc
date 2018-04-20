@@ -112,13 +112,10 @@
     with_items: "{{ lxc_hosts }}"
 
   - name: Populate every container's /etc/hosts with every container's addresses
-    lineinfile:
-      dest: "/var/lib/lxc/{{ item.0 }}/rootfs/etc/hosts"
-      regexp: "^.* {{ item.1.name }}"
-      line: "{{ item.1.ip }} {{ item.1.name }}.lxc {{ item.1.name }}"
-    with_nested:
-      - "{{ lxc_hosts | map(attribute='name') | list }}"
-      - "{{ lxc_hosts }}"
+    template:
+      src: hosts.j2
+      dest: "/var/lib/lxc/{{ item.name }}/rootfs/etc/hosts"
+    with_items: "{{ lxc_hosts }}"
 
   - name: Create .ssh directory in containers
     file:
