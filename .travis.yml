@@ -24,7 +24,7 @@ install:
 # The following is needed for default Ansible 2.3 installations
 - 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
 - git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install
-  lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc
+  lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc && rm lae.travis-lxc.tar.gz
 before_script: cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check

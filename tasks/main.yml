@@ -24,7 +24,7 @@
 - block:
   - name: Create LXC containers for requested test profiles
     lxc_container:
-      name: "{{ item.0.profile }}-{{ '%02d' | format(item.1) }}"
+      name: "{{ item.0.prefix | default(item.0.profile) }}{{ item.1 }}"
       template: "{{ item.0.profile.split('-').0 }}"
       template_options: >-
         {% set __profile = item.0.profile.split('-') %}
@@ -47,7 +47,7 @@
     changed_when: false
     with_nested:
       - "{{ test_profiles }}"
-      - "{{ range(1, hosts_per_profile + 1) | list }}"
+      - "{{ test_host_suffixes }}"
 
   - name: Wait for container creation tasks to complete
     async_status:
@@ -59,14 +59,11 @@
 
   - name: Wait until containers have active IP addresses
     lxc_container:
-      name: "{{ host_prefix }}{{ '%s' | format(item) }}"
-      name: "{{ item.0.profile }}-{{ '%02d' | format(item.1) }}"
+      name: "{{ item.lxc_container.name }}"
       container_command: "until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done"
     register: __container_addresses
     changed_when: false
-    with_nested:
-      - "{{ test_profiles }}"
-      - "{{ range(1, hosts_per_profile + 1) | list }}"
+    with_items: "{{ __containers.results }}"
 
   - name: Install packages in RHEL-based containers
     lxc_container:

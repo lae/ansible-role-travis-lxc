@@ -7,9 +7,10 @@
     additional_packages:
       - make
       - m4
-    hosts_per_profile: 2
+    test_hosts_per_profile: 2
     test_profiles:
       - profile: debian-stretch
+        prefix: debian-stretch-test
       - profile: debian-jessie
       - profile: debian-wheezy
       - profile: centos-7
