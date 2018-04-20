@@ -1,9 +1,12 @@
 ---
-# defaults file for ansible-role-travis-lxc
-template: "{{ lookup('env', 'LXC_DISTRO') | default('debian', true) }}"
-release: "{{ lookup('env', 'LXC_RELEASE') | default('stretch', true) }}"
-host_prefix: test
-host_quantity: 1
+# defaults file for lae.travis-lxc
+test_profiles:
+  - profile: debian-stretch
+    prefix: test
+#test_host_suffixes:
+# - "-client"
+# - "-server"
+#test_hosts_per_profile: 1
 container_config:
   - "lxc.apparmor.profile = unconfined"
   - "lxc.mount.auto = proc:rw sys:rw cgroup-full:rw"

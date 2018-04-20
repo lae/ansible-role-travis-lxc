@@ -1,0 +1,40 @@
+---
+- block:
+  - name: Symlink OS python-apt into Travis Python virtualenv
+    file:
+      src: "/usr/lib/python2.7/dist-packages/{{ item }}"
+      path: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python2.7/site-packages/{{ item }}"
+      state: link
+    with_items:
+      - apt
+      - apt_pkg.so
+      - apt_inst.so
+      - aptsources
+
+  - name: Configure LXC PPA
+    apt_repository:
+      repo: "ppa:ubuntu-lxc/stable"
+
+  - name: Install needed packages
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      cache_valid_time: 3600
+      state: latest
+    with_items: "{{ travis_lxc_packages }}"
+  become: True
+
+- name: Install needed Python libraries
+  pip:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ travis_lxc_eggs }}"
+
+- name: Identify Travis CI's local Ubuntu mirror
+  shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'
+  changed_when: False
+  register: __travis_ubuntu_mirror_lookup
+
+- name: Set fact for which mirror to use for Ubuntu LXC containers
+  set_fact:
+    __travis_ubuntu_mirror: "{{ __travis_ubuntu_mirror_lookup.stdout if __travis_ubuntu_mirror_lookup.stdout != '' else 'http://mirror.math.princeton.edu/pub/ubuntu' }}"

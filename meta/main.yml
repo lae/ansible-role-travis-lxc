@@ -3,7 +3,7 @@ galaxy_info:
   description: Configures LXC containers to use for testing Ansible roles on Travis CI
   company: FireEye, Inc.
   license: MIT
-  min_ansible_version: 2.1
+  min_ansible_version: 2.3
   github_branch: master
   platforms:
   - name: Ubuntu

@@ -1,1 +1,15 @@
-test[01:02].lxc
+# following is used when testing that test_profiles.*.prefix works
+debian-stretch-test[01:02]
+# $hostname.lxc names are kept for backwards compatibility in <0.7.0
+# e.g. test01.lxc
+debian-jessie[01:02].lxc
+# the rest are standard fare
+debian-wheezy[01:02]
+centos-7[01:02]
+centos-6[01:02]
+ubuntu-xenial[01:02]
+ubuntu-trusty[01:02]
+ubuntu-precise[01:02]
+fedora-27[01:02]
+fedora-26[01:02]
+fedora-25[01:02]

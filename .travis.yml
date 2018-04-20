@@ -2,44 +2,46 @@ language: python
 sudo: required
 dist: trusty
 cache:
-  directories: [ '$HOME/lxc' ]
+  directories:
+  - "$HOME/lxc"
   pip: true
 matrix:
   fast_finish: true
 env:
-  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' #2.6 DEVEL
-  - ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0' #2.4.x
-  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' #2.4.x
-  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' #2.3.x
-  - ANSIBLE_VERSION='ansible>=2.2.0,<2.3.0' #2.2.x
-  - LXC_DISTRO=debian LXC_RELEASE=jessie
-  - LXC_DISTRO=debian LXC_RELEASE=wheezy
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
-  - LXC_DISTRO=ubuntu LXC_RELEASE=trusty
-  - LXC_DISTRO=ubuntu LXC_RELEASE=precise
-  - LXC_DISTRO=centos LXC_RELEASE=7
-  - LXC_DISTRO=centos LXC_RELEASE=6
-  - LXC_DISTRO=fedora LXC_RELEASE=27
-  - LXC_DISTRO=fedora LXC_RELEASE=26
-  - LXC_DISTRO=fedora LXC_RELEASE=25
-
+- ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+- ANSIBLE_VERSION='<2.6.0' # 2.5.x
+- ANSIBLE_VERSION='<2.5.0' # 2.4.x
+- ANSIBLE_VERSION='<2.4.0' # 2.3.x
+- LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=-v0.6.1 # Backwards compatibility test
 before_cache:
-- sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. $HOME/lxc/cache.tar
+- sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo
+  chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || true
-- sudo apt-get install -y expect-dev
-- if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible; fi
+- if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
+  elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
+  else pip install ansible; fi
 - ansible --version
-- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
+# The following is needed for default Ansible 2.3 installations
+- 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
+- git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install
+  lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc && rm lae.travis-lxc.tar.gz
+before_script: cd tests/
 script:
-- ansible-playbook -i tests/inventory tests/deploy.yml --syntax-check
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i tests/inventory -v tests/deploy.yml
-- unbuffer ansible-playbook -i tests/inventory tests/deploy.yml >/tmp/idempotency.log 2>&1
-- 'grep -A1 "PLAY RECAP" /tmp/idempotency.log | grep -qP "changed=0.*failed=0" &&
-  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat /tmp/idempotency.log;
+- ansible-playbook -i inventory${TEST} deploy${TEST}.yml --syntax-check
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v deploy${TEST}.yml
+- unbuffer ansible-playbook -i inventory${TEST} deploy${TEST}.yml >idempotency.log 2>&1
+- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0" && (echo
+  "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log;
   exit 1)'
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i tests/inventory -v tests/test.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  irc:
+    on_success: change
+    channels:
+      secure: "uNnWy3ToabL7W4mP2jTqdbV3do408Sl4N53D9T3vvcpCOLrdHeSagq+Juto3q4Z2bF/zpwHp05y5pJU0N3Fsb4W1C2jUnGvbwEYFRK+cTUsMUT+rrcHByF2e/nMBi1GEPysGfXtNMlEIe+rlKNTCFvfngnp2lTmcs4QBtQh+eS1YQBr8mdizCDWi28FygMTma87VdQ10Af0XkXWHgVHYfh4MARGfkMmCWjZqBHaKV5xTZ7xVzndGN7T3XiehRnD44iQNT6PaYZFRqUWV8S8BROhwOZIlgwEX3t/gxiGKLOHoI/cubm2H8aKEhSMl18MUZxET7CK4vwVpEnlqTQihsLkkuM7zfvsUWEQA03ZsZDAAnnIykbfQDMVBexOfZwv/5xdX5qTy2aghr7c/+LUf8N86Hj+TDGfWBioNhuPYBj5lghw0a+p002kKjjmgr2tTZpghIdHzmRqjne2ZbcIH3lBMWftzDHtBxuUTAaxaGP75VqH0JF5lGUvZL49VPtb8tGff0BVi0+YuHdlDAoIL6ACC6qQlgyVEZhZ170QS0Ez9s+pkMa1rpj4BsxBKZog3TKEad4K+CcewarwCgCEGxG2S4E1ugeZoCVtP8Gr4CC/51axhbATCPqYSQnNXKXo6vP3Gw3VBOcKx/Ku8uR+Kcdj7oEoAcJRF5eZFMG1y5Wk="
   slack:
-    secure: MsxUgDXsiTpTGbWCBSXWdjMqPGGoxrpSr0isQp1lUhpb2VCSMAbpBtN7sf7NjyewFIj/4OudDJ0+F6gWN5YVCOW6PvojQ7pNPENH/yCdsfH2nwhIshJ12VPs4tWbRA/C0FSLzijb1961tSrqxPE7afa4KKBJNY4Xfud0RiWlRXllUcbC2zCVBc6BXAdolJ6qT20Fpupa9gD94tq73mCb2h8C6GVhnb7dh7125q7I7bXVd+lCyDp21qoEz/mTgIGE21MIzCQZhQEkOjewhdDWVk0WVfq5Qhzd3A0anb60vL6U+b9OUXwKP15kFIH6wMA3Xs5X+jwZbPVTKHnYQ15W/FFNUZAQGnoCFOtYDGVowB5RsApeRElIj4EM3PTJ3zNTjUcHaFbVWux1v+IlVtmLvskCWXdxUX2NAR12hy6Mv76WE8SclW4lWFxws8hske0CSJLizMnTfUJfRK9wy5W0FjmoDm51MS1sNjEGlUVnC8Zpb6eyKchz0XYeq5ZFXk2SR6e9NdpzZ16I5Cmc929WP/Ux8/NwSuQixDOFiDkm4nzJ1TvNAK7N0Y24DsfhFLwIfjq200bEqUZE51keMUR2j9pD7E5cS1RX/DYXsV2mttfoFpmvKvlk/NSwZZq3yH9lgpM+IREM4asXFDBsmURd9Sj/CfPkC5wwzkDEuap8ySc=
+    on_success: change
+    rooms:
+      secure: "KBVbiB1uV7C56jewVHy9X4xLE6RcNfZwEmjknSQOFWa0kgdiS40tDW9UJNE0AJ+Fs26tKT6sYI0KvlqS+OYkNtTq54vxfpiWkDj7fyfvuKsBfWgQll99y0Tm+CffLDtWwCv9+95qifaV6JwYM3bk6t2DPS7yzvLPrqqYxmJ2sAC99ulnueSdT/LpcSfXh8zCSr1DyfHkGfu6Cj32YPYstN8tSB8kjWZfulRVP5yYfBxhKbngv5NCsMMfappaSYK2W2HbYbJW5ZLPzJcbu2ynWTHZcmWHGFTdFLzOixNEAL5Gpqfgub+MZxxUrfekVdb8IM+eIeDJcNe7CATp35p/+mzXU+BZm5gsLTltoQb1ykUDRBW7cKulCoG7kCNN+qijWUcQYEaTkPmZToQ1Q1BiktOAcPnGWmPGKPxVuKL58BFIAfxAMWXlG1V6M+giq9nUSqzDHd6p62UE1IR5ws0o/pUwJERyjrZr1VzQyaaqPiYpqDvg5DjTtZQFivLIt8wKukDXivB7BuP4BFWUJwUXjoLFcAck8QZ9i2+5PyKE7sjRF5O2/BZls9Ql/vAnCwUaXMekzpSVuxEL/XvE4PI9nmp5T2tISuT7cCskfoy8dpJfUi75sE85D04TY3Y3XWr91ubCwJrKnVIBD/NPIKR56xs204EmIcwi39qskzZAShc="

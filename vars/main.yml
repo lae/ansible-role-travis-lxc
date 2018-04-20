@@ -1,23 +1,100 @@
 ---
-# vars file for ansible-role-travis-lxc
-travis_lxc_distributions:
-  debian.wheezy: "Debian Wheezy (7)"
-  debian.jessie: "Debian Jessie (8)"
-  debian.stretch: "Debian Stretch (9)"
-  ubuntu.precise: "Ubuntu Precise Pangolin (12.04)"
-  ubuntu.trusty: "Ubuntu Trusty Tahr (14.04)"
-  ubuntu.xenial: "Ubuntu Xenus Xenial (16.04)"
-  centos.6: "CentOS 6"
-  centos.7: "CentOS 7"
-  fedora.25: "Fedora 25"
-  fedora.26: "Fedora 26"
-  fedora.27: "Fedora 27"
+# vars file for lae.travis-lxc
+travis_lxc_profiles:
+  debian-wheezy:
+    label: "Debian Wheezy (7)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+      - gnupg2
+  debian-jessie:
+    label: "Debian Jessie (8)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+      - gnupg2
+  debian-stretch:
+    label: "Debian Stretch (9)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+      - gnupg2
+  ubuntu-precise:
+    label: "Ubuntu Precise Pangolin (12.04)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+  ubuntu-trusty:
+    label: "Ubuntu Trusty Tahr (14.04)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+  ubuntu-xenial:
+    label: "Ubuntu Xenus Xenial (16.04)"
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+  centos-6:
+    label: "CentOS 6"
+    packages:
+      - python
+      - ca-certificates
+      - sudo
+      - redhat-lsb-core
+    environment:
+      root_expire_password: no
+  centos-7:
+    label: "CentOS 7"
+    packages:
+      - python
+      - ca-certificates
+      - sudo
+      - redhat-lsb-core
+    environment:
+      root_expire_password: no
+  fedora-25:
+    label: "Fedora 25"
+    packages:
+      - python2
+      - ca-certificates
+      - sudo
+    environment:
+      root_expire_password: no
+  fedora-26:
+    label: "Fedora 26"
+    packages:
+      - python2
+      - ca-certificates
+      - sudo
+    environment:
+      root_expire_password: no
+  fedora-27:
+    label: "Fedora 27"
+    packages:
+      - python2
+      - ca-certificates
+      - sudo
+    environment:
+      root_expire_password: no
 travis_lxc_packages:
   - lxc
   - lxc-templates
   - lxc-dev
   - yum
   - debootstrap
+  - expect-dev
 travis_lxc_eggs:
   - lxc-python2
 travis_lxc_network_config:
