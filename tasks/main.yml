@@ -139,7 +139,7 @@
   become: true
 
 - name: Collect SSH host keys from all containers
-  shell: "ssh-keyscan {{ item.name }}.lxc > ~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
+  shell: "ssh-keyscan {{ item.name }}.lxc {{ item.name }} > ~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
   args:
     creates: "~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
   with_items: "{{ lxc_hosts }}"
