@@ -18,9 +18,9 @@ before_cache:
   chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || true
-- if [ "$ANSIBLE_GIT_VERSION" ]; then git clone --depth=1 git+https://github.com/ansible/ansible.git@$ANSIBLE_GIT_VERSION
-  $HOME/ansible; pip install git+file://$HOME/ansible/; elif [ "$ANSIBLE_VERSION"
-  ]; then pip install "ansible${ANSIBLE_VERSION}"; else pip install ansible; fi
+- if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
+  elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
+  else pip install ansible; fi
 - ansible --version
 # The following is needed for default Ansible 2.3 installations
 - 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
