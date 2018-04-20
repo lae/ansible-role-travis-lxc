@@ -2,33 +2,41 @@ language: python
 sudo: required
 dist: trusty
 cache:
-  directories: [ '$HOME/lxc' ]
+  directories:
+  - "$HOME/lxc"
   pip: true
 matrix:
   fast_finish: true
 env:
-  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' # 2.6 DEVEL
-  - ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0' # 2.5.x
-  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' # 2.4.x
-  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' # 2.3.x
+- ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel'
+- ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0'
+- ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0'
+- ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0'
 before_cache:
-- sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo chown $USER. $HOME/lxc/cache.tar
+- sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo
+  chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || true
-- if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible; fi
+- if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible;
+  fi
 - ansible --version
-- sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles # Ansible 2.3 defaults to /etc/ansible/roles
-- git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc
+- 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
+- git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install
+  lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc
 before_script: cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v deploy.yml
 - unbuffer ansible-playbook -i inventory deploy.yml >idempotency.log 2>&1
-- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0" &&
-  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log;
+- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0" && (echo
+  "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log;
   exit 1)'
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  irc:
+    secure: hNnK9iPx/zMEvOzZPNph7DQd9Z+bmzXlZcz5KPZHqjWBhix8HJrfqheiwIT1kUGdU6D/dXcri6L3DJsq5DjpBlnjX9YkJnDIswvLByLnmttMUCAyy2yc9jYtR7vqW2YXji5wlC0PdpepG4dXPkgrqsKTXm0CPC2zEfaiJiTWALzGTIwTS8tRfSW61iGaUVNBDVop3/meu0eyaga+E893diJGj16Kh46IUB7syAotyP4LWvyP37rqq0dL7fiH4X+pecj9hzPrm4QqjkPKk+CIA8NoSHbi5UreUr46fkC9bfDO8VElCVl0c7iBeuLsxL4IPfpGeLm/ePmSH69LRc6dhnLcxzqWoVbDXZ5QUSj08rEQDA965ASh8dDPJ7jANd7ytTRQIV5EjYJjfmwaC61zVhj14yvuAFOicSNLsaK2Y1Pl0UmMpvLbJEZmNbgBnxCsQmtZrtFfyp6XEcqDe08wgsaUpWZuTTYR8CqLJG7pexjCXxX5MkUMI4K02DNhTEEeYEGKxS+P7AL4dyJSRTrZXwbGNqP26bAfQca1H05NtkBqZfBeP/brKo3dSsiNRcOuaoKdmN6Z/0kAqtSATvWj9glUi0YRBkA2EmDOPKBBLiM0UMV4oeusLte2Xqk1d+VQ/ppLbbwN3l/ltTihQ5vTPNFPg9QZc1VrrQqt5qMSWOs=
+    on_success: change
   slack:
-    secure: MsxUgDXsiTpTGbWCBSXWdjMqPGGoxrpSr0isQp1lUhpb2VCSMAbpBtN7sf7NjyewFIj/4OudDJ0+F6gWN5YVCOW6PvojQ7pNPENH/yCdsfH2nwhIshJ12VPs4tWbRA/C0FSLzijb1961tSrqxPE7afa4KKBJNY4Xfud0RiWlRXllUcbC2zCVBc6BXAdolJ6qT20Fpupa9gD94tq73mCb2h8C6GVhnb7dh7125q7I7bXVd+lCyDp21qoEz/mTgIGE21MIzCQZhQEkOjewhdDWVk0WVfq5Qhzd3A0anb60vL6U+b9OUXwKP15kFIH6wMA3Xs5X+jwZbPVTKHnYQ15W/FFNUZAQGnoCFOtYDGVowB5RsApeRElIj4EM3PTJ3zNTjUcHaFbVWux1v+IlVtmLvskCWXdxUX2NAR12hy6Mv76WE8SclW4lWFxws8hske0CSJLizMnTfUJfRK9wy5W0FjmoDm51MS1sNjEGlUVnC8Zpb6eyKchz0XYeq5ZFXk2SR6e9NdpzZ16I5Cmc929WP/Ux8/NwSuQixDOFiDkm4nzJ1TvNAK7N0Y24DsfhFLwIfjq200bEqUZE51keMUR2j9pD7E5cS1RX/DYXsV2mttfoFpmvKvlk/NSwZZq3yH9lgpM+IREM4asXFDBsmURd9Sj/CfPkC5wwzkDEuap8ySc=
+    secure: KBVbiB1uV7C56jewVHy9X4xLE6RcNfZwEmjknSQOFWa0kgdiS40tDW9UJNE0AJ+Fs26tKT6sYI0KvlqS+OYkNtTq54vxfpiWkDj7fyfvuKsBfWgQll99y0Tm+CffLDtWwCv9+95qifaV6JwYM3bk6t2DPS7yzvLPrqqYxmJ2sAC99ulnueSdT/LpcSfXh8zCSr1DyfHkGfu6Cj32YPYstN8tSB8kjWZfulRVP5yYfBxhKbngv5NCsMMfappaSYK2W2HbYbJW5ZLPzJcbu2ynWTHZcmWHGFTdFLzOixNEAL5Gpqfgub+MZxxUrfekVdb8IM+eIeDJcNe7CATp35p/+mzXU+BZm5gsLTltoQb1ykUDRBW7cKulCoG7kCNN+qijWUcQYEaTkPmZToQ1Q1BiktOAcPnGWmPGKPxVuKL58BFIAfxAMWXlG1V6M+giq9nUSqzDHd6p62UE1IR5ws0o/pUwJERyjrZr1VzQyaaqPiYpqDvg5DjTtZQFivLIt8wKukDXivB7BuP4BFWUJwUXjoLFcAck8QZ9i2+5PyKE7sjRF5O2/BZls9Ql/vAnCwUaXMekzpSVuxEL/XvE4PI9nmp5T2tISuT7cCskfoy8dpJfUi75sE85D04TY3Y3XWr91ubCwJrKnVIBD/NPIKR56xs204EmIcwi39qskzZAShc=
+    on_success: change
