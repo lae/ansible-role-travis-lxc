@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - lae.travis-lxc
+  vars:
+    additional_packages:
+      - make
+      - m4
+    host_quantity: 2

@@ -12,6 +12,7 @@ env:
 - ANSIBLE_VERSION='<2.6.0' # 2.5.x
 - ANSIBLE_VERSION='<2.5.0' # 2.4.x
 - ANSIBLE_VERSION='<2.4.0' # 2.3.x
+- LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=-v0.6.1 # Backwards compatibility test
 before_cache:
 - sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo
   chown $USER. $HOME/lxc/cache.tar
@@ -27,13 +28,13 @@ install:
   lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc && rm lae.travis-lxc.tar.gz
 before_script: cd tests/
 script:
-- ansible-playbook -i inventory deploy.yml --syntax-check
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v deploy.yml
-- unbuffer ansible-playbook -i inventory deploy.yml >idempotency.log 2>&1
+- ansible-playbook -i inventory${TEST} deploy${TEST}.yml --syntax-check
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v deploy${TEST}.yml
+- unbuffer ansible-playbook -i inventory${TEST} deploy${TEST}.yml >idempotency.log 2>&1
 - 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0" && (echo
   "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log;
   exit 1)'
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   irc:
