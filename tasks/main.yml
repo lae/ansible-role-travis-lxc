@@ -85,11 +85,11 @@
 
   - debug:
       var: __containers
-      verbosity: 1
+      verbosity: 2
 
   - debug:
       var: __container_addresses
-      verbosity: 1
+      verbosity: 2
 
   - set_fact:
       lxc_hosts: "{% set __hosts = [] %}{% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}{{ __hosts.append({'name': ct.name, 'ip': ct.ips[0]}) }}{% endfor %}{{ __hosts }}"
