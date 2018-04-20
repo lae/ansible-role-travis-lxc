@@ -67,7 +67,7 @@ travis_lxc_profiles:
   fedora-25:
     label: "Fedora 25"
     packages:
-      - python
+      - python2
       - ca-certificates
       - sudo
     environment:
@@ -75,7 +75,7 @@ travis_lxc_profiles:
   fedora-26:
     label: "Fedora 26"
     packages:
-      - python
+      - python2
       - ca-certificates
       - sudo
     environment:
@@ -83,7 +83,7 @@ travis_lxc_profiles:
   fedora-27:
     label: "Fedora 27"
     packages:
-      - python
+      - python2
       - ca-certificates
       - sudo
     environment:
