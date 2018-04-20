@@ -8,18 +8,20 @@ cache:
 matrix:
   fast_finish: true
 env:
-- ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel'
-- ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0'
-- ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0'
-- ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0'
+- ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+- ANSIBLE_VERSION='<2.6.0' # 2.5.x
+- ANSIBLE_VERSION='<2.5.0' # 2.4.x
+- ANSIBLE_VERSION='<2.4.0' # 2.3.x
 before_cache:
 - sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo
   chown $USER. $HOME/lxc/cache.tar
 install:
 - sudo tar xf $HOME/lxc/cache.tar -C / || true
-- if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible;
-  fi
+- if [ "$ANSIBLE_GIT_VERSION" ]; then git clone --depth=1 git+https://github.com/ansible/ansible.git@$ANSIBLE_GIT_VERSION
+  $HOME/ansible; pip install git+file://$HOME/ansible/; elif [ "$ANSIBLE_VERSION"
+  ]; then pip install "ansible${ANSIBLE_VERSION}"; else pip install ansible; fi
 - ansible --version
+# The following is needed for default Ansible 2.3 installations
 - 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
 - git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install
   lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc
