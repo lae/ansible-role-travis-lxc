@@ -31,6 +31,7 @@
     args:
       warn: false
       creates: "{{ travis_lxc_profiles[item].rootfs }}"
+      removes: "{{ __rootfs_tarball }}"
     with_items: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:

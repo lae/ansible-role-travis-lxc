@@ -35,6 +35,17 @@
   vars:
     __invalid_profiles: "{{ (test_profiles | map(attribute='profile') | list) | difference(travis_lxc_profiles.keys()) }}"
 
+- set_fact:
+    lxc_cache_profiles: "{{ test_profiles | map(attribute='profile') | list }}"
+  when: lxc_cache_profiles is not defined
+
+- assert:
+    that: "__invalid_cache_profiles == []"
+    msg: "The following cache profile(s) were specified but not present in test_profiles: {{ __invalid_cache_profiles | join(' ') }}"
+  when: lxc_cache_enabled
+  vars:
+    __invalid_cache_profiles: "{{ lxc_cache_profiles | difference(test_profiles | map(attribute='profile') | list) }}"
+
 - assert:
     that: "\
       {% set __found_prefixes = [] %}\
@@ -68,10 +79,3 @@
 - set_fact:
     test_host_suffixes: "[{% for n in range(0, test_hosts_per_profile | default(1) | int) %}'{{ '%02d' | format(n+1) }}',{% endfor %}]"
   when: test_host_suffixes is not defined
-
-- assert:
-    that: "__invalid_cache_profiles == []"
-    msg: "The following cache profile(s) were specified but not present in test_profiles: {{ __invalid_cache_profiles | join(' ') }}"
-  when: lxc_cache_enabled
-  vars:
-    __invalid_cache_profiles: "{{ lxc_cache_profiles | difference(test_profiles | map(attribute='profile') | list) }}"
