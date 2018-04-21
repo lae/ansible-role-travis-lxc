@@ -23,7 +23,7 @@
 
 - block:
   - name: Extract all cached container root filesystems
-    shell: "tar -C / -xf {{ __rootfs_tarball }} && rm {{ __rootfs_tarball }}"
+    shell: "tar -C / -I pigz -xf {{ __rootfs_tarball }} && rm {{ __rootfs_tarball }}"
     async: 1800
     poll: 0
     changed_when: false
@@ -35,7 +35,7 @@
     with_items: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
-      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar"
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
 
   - name: Wait until cached root filesystems have been extracted
     async_status:
