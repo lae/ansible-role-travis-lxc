@@ -1,4 +1,11 @@
 ---
+# Backwards compatibility with environment-specified profiles in <0.7.0
+- set_fact:
+    test_profiles:
+      - profile: "{{ lookup('env', 'LXC_DISTRO') | default(travis_lxc_default_test_profiles.0.profile.split('-').0, true) }}-{{ lookup('env', 'LXC_RELEASE') | default(travis_lxc_default_test_profiles.0.profile.split('-').1, true) }}"
+        prefix: "{{ host_prefix | default(travis_lxc_default_test_profiles.0.prefix, true) }}"
+  when: test_profiles is not defined
+
 - assert:
     that:
       - test_profiles is iterable
@@ -29,24 +36,17 @@
     __invalid_profiles: "{{ (test_profiles | map(attribute='profile') | list) | difference(travis_lxc_profiles.keys()) }}"
 
 - assert:
-    that: >-
-      {% set __found_prefixes = [] %}
-      {% for test_profile in test_profiles %}
-      {% if 'prefix' in test_profile %}
-      {{ __found_prefixes.append(test_profile.prefix) }}
-      {% else %}
-      {{ __found_prefixes.append(test_profile.profile) }}
-      {% endif %}
-      {% endfor %}
-      {{ (__found_prefixes | unique | list | length) == ( __found_prefixes | list | length )}}
+    that: "\
+      {% set __found_prefixes = [] %}\
+      {% for test_profile in test_profiles %}\
+      {% if 'prefix' in test_profile %}\
+      {{ __found_prefixes.append(test_profile.prefix) }}\
+      {% else %}\
+      {{ __found_prefixes.append(test_profile.profile) }}\
+      {% endif %}\
+      {% endfor %}\
+      {{ (__found_prefixes | unique | list | length) == ( __found_prefixes | list | length )}}"
     msg: "There are duplicate prefixes specified in 'test_profiles'. Please ensure that you are not reusing prefix names for multiple profiles or using prefixes that conflict with profile names."
-
-# Backwards compatibility with environment-specified profiles in <0.7.0
-- set_fact:
-    test_profiles:
-      - profile: "{{ lookup('env', 'LXC_DISTRO') | default('debian', true) }}-{{ lookup('env', 'LXC_RELEASE') | default('stretch', true) }}"
-        prefix: test
-  when: "lookup('env', 'LXC_RELEASE') != '' or lookup('env', 'LXC_DISTRO') != ''"
 
 # Backwards compatibility with host_quantity variable from <0.7.0
 # These conditions make it so that if user specifies test_hosts_per_profile and
@@ -61,13 +61,10 @@
     msg: "Both 'test_hosts_per_profile' and 'test_host_suffixes' have been defined. 'test_hosts_per_profile' will be ignored."
   when: test_hosts_per_profile is defined and test_host_suffixes is defined
 
-# The following two set_facts ensure that:
+# The following set_fact ensures that:
 # - if test_hosts_per_profile isn't specified, we default to 1
 # - if test_host_suffixes isn't specified, we generate a list of zero-padded
 #   number suffixes based on test_hosts_per_profile
 - set_fact:
-    test_hosts_per_profile: "{{ test_hosts_per_profile | default(1) }}"
-
-- set_fact:
-    test_host_suffixes: "[{% for n in range(0, test_hosts_per_profile | int) %}'{{ '%02d' | format(n+1) }}',{% endfor %}]"
+    test_host_suffixes: "[{% for n in range(0, test_hosts_per_profile | default(1) | int) %}'{{ '%02d' | format(n+1) }}',{% endfor %}]"
   when: test_host_suffixes is not defined

@@ -1,11 +1,11 @@
 ---
 # defaults file for lae.travis-lxc
-test_profiles:
-  - profile: debian-stretch
-    prefix: test
+#test_profiles:
+#  - profile: debian-stretch
+#    prefix: test
 #test_host_suffixes:
-# - "-client"
-# - "-server"
+#  - "-client"
+#  - "-server"
 #test_hosts_per_profile: 1
 container_config:
   - "lxc.apparmor.profile = unconfined"

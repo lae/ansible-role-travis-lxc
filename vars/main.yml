@@ -1,5 +1,8 @@
 ---
 # vars file for lae.travis-lxc
+travis_lxc_default_test_profiles:
+  - profile: debian-stretch
+    prefix: test
 travis_lxc_profiles:
   debian-wheezy:
     label: "Debian Wheezy (7)"
