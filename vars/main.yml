@@ -12,6 +12,7 @@ travis_lxc_profiles:
       - curl
       - sudo
       - gnupg2
+    rootfs: /var/cache/lxc/debian/rootfs-wheezy-amd64
   debian-jessie:
     label: "Debian Jessie (8)"
     packages:
@@ -20,6 +21,7 @@ travis_lxc_profiles:
       - curl
       - sudo
       - gnupg2
+    rootfs: /var/cache/lxc/debian/rootfs-jessie-amd64
   debian-stretch:
     label: "Debian Stretch (9)"
     packages:
@@ -28,6 +30,7 @@ travis_lxc_profiles:
       - curl
       - sudo
       - gnupg2
+    rootfs: /var/cache/lxc/debian/rootfs-stretch-amd64
   ubuntu-precise:
     label: "Ubuntu Precise Pangolin (12.04)"
     packages:
@@ -35,6 +38,7 @@ travis_lxc_profiles:
       - ca-certificates
       - curl
       - sudo
+    rootfs: /var/cache/lxc/precise/rootfs-amd64
   ubuntu-trusty:
     label: "Ubuntu Trusty Tahr (14.04)"
     packages:
@@ -42,6 +46,7 @@ travis_lxc_profiles:
       - ca-certificates
       - curl
       - sudo
+    rootfs: /var/cache/lxc/trusty/rootfs-amd64
   ubuntu-xenial:
     label: "Ubuntu Xenus Xenial (16.04)"
     packages:
@@ -49,6 +54,7 @@ travis_lxc_profiles:
       - ca-certificates
       - curl
       - sudo
+    rootfs: /var/cache/lxc/xenial/rootfs-amd64
   centos-6:
     label: "CentOS 6"
     packages:
@@ -58,6 +64,7 @@ travis_lxc_profiles:
       - redhat-lsb-core
     environment:
       root_expire_password: no
+    rootfs: /var/cache/lxc/centos/x86_64/6/rootfs
   centos-7:
     label: "CentOS 7"
     packages:
@@ -67,6 +74,7 @@ travis_lxc_profiles:
       - redhat-lsb-core
     environment:
       root_expire_password: no
+    rootfs: /var/cache/lxc/centos/x86_64/7/rootfs
   fedora-25:
     label: "Fedora 25"
     packages:
@@ -75,6 +83,7 @@ travis_lxc_profiles:
       - sudo
     environment:
       root_expire_password: no
+    rootfs: /var/cache/lxc/fedora/25-x86_64/rootfs
   fedora-26:
     label: "Fedora 26"
     packages:
@@ -83,6 +92,7 @@ travis_lxc_profiles:
       - sudo
     environment:
       root_expire_password: no
+    rootfs: /var/cache/lxc/fedora/26-x86_64/rootfs
   fedora-27:
     label: "Fedora 27"
     packages:
@@ -91,6 +101,7 @@ travis_lxc_profiles:
       - sudo
     environment:
       root_expire_password: no
+    rootfs: /var/cache/lxc/fedora/27-x86_64/rootfs
 travis_lxc_packages:
   - lxc
   - lxc-templates

@@ -22,6 +22,29 @@
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
 - block:
+  - name: Extract all cached container root filesystems
+    shell: "tar -C / -xf {{ __rootfs_tarball }} && rm {{ __rootfs_tarball }}"
+    async: 1800
+    poll: 0
+    changed_when: false
+    register: __cache_restore_jobs
+    args:
+      warn: false
+      creates: "{{ travis_lxc_profiles[item].rootfs }}"
+    with_items: "{{ lxc_cache_profiles }}"
+    when: lxc_cache_enabled
+    vars:
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar"
+
+  - name: Wait until cached root filesystems have been extracted
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __cache_restore
+    ignore_errors: true
+    until: __cache_restore.finished
+    with_items: "{{ __cache_restore_jobs.results }}"
+    when: "lxc_cache_enabled and 'ansible_job_id' in item"
+
   - name: Prepare a single LXC container per profile as a base container
     lxc_container:
       name: "{{ item.prefix | default(item.profile) }}"
@@ -81,6 +104,30 @@
     retries: 300
     with_items: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
+
+  - name: Archive all container root filesystems
+    shell: "tar --mtime=0 -cf {{ __rootfs_tarball }} {{ travis_lxc_profiles[item].rootfs }} && chown {{ ansible_user_id }}: {{ lxc_cache_directory }}/{{ item }}.tar"
+    async: 1800
+    poll: 0
+    changed_when: false
+    register: __cache_save_jobs
+    args:
+      warn: false
+      creates: "{{ __rootfs_tarball }}"
+    with_items: "{{ lxc_cache_profiles }}"
+    when: lxc_cache_enabled
+    vars:
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar"
+
+  - name: Wait for all root filesystem archivals to complete
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __cache_save
+    ignore_errors: true
+    until: __cache_save.finished
+    retries: 100
+    with_items: "{{ __cache_save_jobs.results }}"
+    when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Create an .ssh directory in the base containers
     file:

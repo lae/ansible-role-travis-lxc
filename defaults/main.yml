@@ -12,3 +12,6 @@ container_config:
   - "lxc.mount.auto = proc:rw sys:rw cgroup-full:rw"
   - "lxc.cgroup.devices.allow = a *:* rmw"
 additional_packages: []
+lxc_cache_enabled: yes
+lxc_cache_directory: "/home/{{ ansible_user_id }}/lxc"
+lxc_cache_profiles: "{{ test_profiles | map(attribute='profile') | list }}"
