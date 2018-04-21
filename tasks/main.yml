@@ -22,7 +22,7 @@
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
 - block:
-  - name: Prepare a single LXC container per profile for base images
+  - name: Prepare a single LXC container per profile as a base container
     lxc_container:
       name: "{{ item.prefix | default(item.profile) }}"
       template: "{{ __template }}"
@@ -100,6 +100,8 @@
     lxc_container:
       name: "{{ item.0.prefix | default(item.0.profile) }}"
       clone_name: "{{ item.0.prefix | default(item.0.profile) }}{{ item.1 }}"
+      clone_snapshot: true
+      backing_store: overlayfs
       state: stopped
     register: __clone_jobs
     async: 7200
@@ -151,7 +153,7 @@
   - name: Populate every container's /etc/hosts with every container's addresses
     template:
       src: hosts.j2
-      dest: "/var/lib/lxc/{{ item.name }}/rootfs/etc/hosts"
+      dest: "/var/lib/lxc/{{ item.name }}/delta0/etc/hosts"
     with_items: "{{ lxc_hosts }}"
 
   become: true
