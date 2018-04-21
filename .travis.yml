@@ -15,6 +15,7 @@ env:
 - ANSIBLE_VERSION='<2.4.0' # 2.3.x
 - LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=-v0.6.1 # Backwards compatibility test
 install:
+- ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
   elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
   else pip install ansible; fi

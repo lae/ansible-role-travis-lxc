@@ -43,6 +43,7 @@
     register: __cache_restore
     ignore_errors: true
     until: __cache_restore.finished
+    retries: 100
     with_items: "{{ __cache_restore_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
@@ -107,7 +108,7 @@
     when: "'ansible_job_id' in item"
 
   - name: Archive all container root filesystems
-    shell: "tar --mtime=0 -cf {{ __rootfs_tarball }} {{ travis_lxc_profiles[item].rootfs }} && chown {{ ansible_user_id }}: {{ lxc_cache_directory }}/{{ item }}.tar"
+    shell: "tar --mtime=0 -I pigz -cf {{ __rootfs_tarball }} {{ travis_lxc_profiles[item].rootfs }} && chown {{ ansible_user_id }}: {{ __rootfs_tarball }}"
     async: 1800
     poll: 0
     changed_when: false
@@ -118,7 +119,7 @@
     with_items: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
-      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar"
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
 
   - name: Wait for all root filesystem archivals to complete
     async_status:

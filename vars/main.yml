@@ -109,6 +109,7 @@ travis_lxc_packages:
   - yum
   - debootstrap
   - expect-dev
+  - pigz
 travis_lxc_eggs:
   - lxc-python2
 travis_lxc_network_config:
