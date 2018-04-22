@@ -165,9 +165,6 @@ You can drop pretty much anything in `tests/ansible.cfg`.
 callback_whitelist=profile_tasks
 forks=20
 internal_poll_interval = 0.001
-
-[ssh_connection]
-retries=3
 ```
 
 This runs the `profile_tasks` callback on your playbook, which helps to identify
@@ -175,9 +172,6 @@ which tasks take the longest to complete. You could use this to identify any
 performance regressions, for example. If you're bringing up and running your
 playbook against multiple containers, specify `forks`. `internal_poll_interval`
 is a good general setting to have when you have multiple tasks/loops.
-
-`ssh_connections.retries` may be necessary to prevent the occasional SSH hiccup
-in containers (which seems to be common against CentOS 6, notsomuch the others).
 
 ### Caching
 

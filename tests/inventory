@@ -6,7 +6,7 @@ debian-jessie-[01:02].lxc
 # the rest are standard fare
 debian-wheezy-[01:02]
 centos-7-[01:02]
-centos-6-[01:02]
+centos-6-01 # ignoring 02, see issue #26
 ubuntu-xenial-[01:02]
 ubuntu-trusty-[01:02]
 ubuntu-precise-[01:02]
