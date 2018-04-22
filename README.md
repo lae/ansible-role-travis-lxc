@@ -2,53 +2,244 @@
 [![Galaxy Role](https://img.shields.io/badge/ansible--galaxy-travis--lxc-blue.svg)](https://galaxy.ansible.com/lae/travis-lxc/)
 
 lae.travis-lxc
-=========
+==============
 
 Configures and starts N LXC containers to use in the Travis CI environment for
 simpler testing of Ansible roles across different distributions.
 
+# Usage
+
+So you want to test your Ansible roles on Travis CI, but you don't want to use
+Docker because it doesn't mimic a full OS? LXC is what you want to use. This
+role will hopefully abstract much of the boilerplate you might otherwise use.
+
+To get started, a minimal `.travis.yml` that thoroughly tests that your role is
+valid, idempotent, and functional may look like this:
+
+```yaml
+---
+language: python
+sudo: required
+dist: trusty
+install:
+- pip install ansible
+- ansible-galaxy install lae.travis-lxc,v0.7.0
+- ansible-playbook tests/install.yml -i tests/inventory
+before_script: cd tests/
+script:
+- ansible-playbook -i inventory deploy.yml --syntax-check
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v deploy.yml
+- unbuffer ansible-playbook -i inventory deploy.yml >idempotency.log 2>&1
+- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0.*" && (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log; exit 1)'
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
+```
+
+You'll note that four files are referenced. You can decide how to define your
+build process, but the following is what typically serves most purposes:
+
+- **tests/install.yml**: executes *lae.travis-lxc* and other pre-install steps
+- **tests/deploy.yml**: executes the role you're testing
+- **tests/test.yml**: executes validation tests against your deployment
+- **tests/inventory**: contains a list of LXC container hostnames
+
+`install.yml` may look like this:
+
+```yaml
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - lae.travis-lxc
+  vars:
+    test_profiles:
+      - profile: debian-stretch
+      - profile: ubuntu-xenial
+      - profile: centos-7
+
+- hosts: all
+  tasks: []
+```
+
+The first play brings up three containers of three different distributions. The
+second play could be used to either run other roles or pre-installation tasks
+that you would expect your role not to do (for example, install `epel-release`
+or create a device node for FUSE (because LXC doesn't do that for you)).
+
+`deploy.yml` may look like this:
+
+```yaml
+---
+- hosts: all
+  become: true
+  any_errors_fatal: true
+  roles:
+    - ansible-role-strawberry-milk
+  vars:
+    number_of_cartons: 15
+```
+
+This is basically a rendition of what `ansible-galaxy init` would spit out in
+`test.yml`. This would have everything you need to execute your role properly.
+For more complex roles, it makes sense to split variables out into the
+`tests/group_vars` folder and configure your inventory appropriately.
+
+`test.yml` should contain your tests, if you wanted to run any:
+
+```yaml
+---
+- hosts: all
+  tasks:
+    - name: Ensure that the Strawberry Milk HTTP service is running
+      uri:
+        url: "http://{{ inventory_hostname }}:1515"
+    - block:
+      - name: Print out Strawberry Milk configuration
+        shell: cat /etc/strawberry_milk.conf
+        changed_when: false
+      - name: Print out system logs
+        shell: "cat /var/log/messages || cat /var/log/syslog || journalctl -xb"
+      ignore_errors: yes
+```
+
+This can be useful to ensure that a service is running, that a cluster is in a
+healthy state, that certain files are being created...you get the idea. The
+`block` I have here is an area where I run diagnostic-like tasks to help me
+debug issues, which includes printing out logs and the sort. It's wrapped with
+`ignore_errors` so that tasks here don't affect the build (one major
+contendant that errors is the log printing task when testing multiple distros).
+
+And finally, the inventory:
+
+```ini
+debian-stretch-01
+ubuntu-xenial-01
+centos-7-01
+```
+
+Hostnames are generated from two parts, a prefix and suffix. By default, these
+are generated from the `profile` key in `test_profiles` in the format of
+`{{ profile }}-{{ suffix }}`, where suffix by default is `01`.
+
+> **Note**: If `test_profiles` is not specified, the role defaults to creating
+> one Debian Stretch container named `test01.lxc` (which is further overridable
+> with environment variables and other role variables). This is in order to
+> maintain backwards compatibility with an older version of this role but will
+> eventually be deprecated - so be sure to specify `test_profiles`.
+
+Once you have those files written, you're ready to test your role in Travis CI.
+However, you probably want more out of it, so let's go over some other topics.
+
+### Testing multiple Ansible versions
+
+It's likely you'll want to test your role against the development branch as well
+as all currently supported Ansible releases. This is something you'd want to
+configure in `.travis.yml` and there are various ways to go about it:
+
+```yaml
+env:
+- ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+- ANSIBLE_VERSION='<2.6.0' # 2.5.x
+- ANSIBLE_VERSION='<2.5.0' # 2.4.x
+- ANSIBLE_VERSION='<2.4.0' # 2.3.x
+install:
+- if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
+  elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
+  else pip install ansible; fi
+- ansible --version
+# The following is needed for default Ansible 2.3 installations
+- 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
+```
+
+Here, we've added an install task that will either take `ANSIBLE_GIT_VERSION`,
+as a valid reference in the Ansible git repository, or `ANSIBLE_VERSION`, a
+valid version string that can be passed to pip during installation.
+
+### Ansible performance and profiling
+
+You can drop pretty much anything in `tests/ansible.cfg`.
+
+```ini
+[defaults]
+callback_whitelist=profile_tasks
+forks=20
+internal_poll_interval = 0.001
+
+[ssh_connection]
+retries=3
+```
+
+This runs the `profile_tasks` callback on your playbook, which helps to identify
+which tasks take the longest to complete. You could use this to identify any
+performance regressions, for example. If you're bringing up and running your
+playbook against multiple containers, specify `forks`. `internal_poll_interval`
+is a good general setting to have when you have multiple tasks/loops.
+
+`ssh_connections.retries` may be necessary to prevent the occasional SSH hiccup
+in containers (which seems to be common against CentOS 6, notsomuch the others).
+
+### Caching
+
+LXC images can be cached to save on bootstrapping time, especially when you're
+testing against several profiles. Drop the following in your `.travis.yml` and
+this role will take care of the rest.
+
+```yaml
+cache:
+  directories:
+  - "$HOME/lxc"
+  pip: true
+```
+
+*(`pip: true` doesn't mean anything for this role, but it's included here since
+you might want to cache your Ansible installation as well.)*
 
 Role Variables
 --------------
-By default, the environment variables `LXC_DISTRO` and `LXC_RELEASE` are used
-for selecting which LXC container template to test from. If not specified, this
-role defaults to the Debian Stretch template.
 
-    template: "{{ lookup('env', 'LXC_DISTRO') | default('debian', true) }}"
-    release: "{{ lookup('env', 'LXC_RELEASE') | default('stretch', true) }}"
+To specify what distributions to test against, use `test_profiles`. Supported
+profiles include (feel free to request/contribute new ones):
 
-To give an example, a full test suite (in your `.travis.yml`) against all valid
-distros and different Ansible versions would possibly look like this:
-
-```
-env:
-  # Since the default is Stretch, no need to specify LXC_RELEASE/LXC_DISTRO
-  - ANSIBLE_VERSION='git+https://github.com/ansible/ansible.git@devel' # 2.6 DEVEL
-  - ANSIBLE_VERSION='ansible>=2.5.0,<2.6.0' # 2.5.x
-  - ANSIBLE_VERSION='ansible>=2.4.0,<2.5.0' # 2.4.x
-  - ANSIBLE_VERSION='ansible>=2.3.0,<2.4.0' # 2.3.x
-  - LXC_DISTRO=debian LXC_RELEASE=jessie
-  - LXC_DISTRO=debian LXC_RELEASE=wheezy
-  - LXC_DISTRO=ubuntu LXC_RELEASE=xenial
-  - LXC_DISTRO=ubuntu LXC_RELEASE=trusty
-  - LXC_DISTRO=ubuntu LXC_RELEASE=precise
-  - LXC_DISTRO=centos LXC_RELEASE=7
-  - LXC_DISTRO=centos LXC_RELEASE=6
-  - LXC_DISTRO=fedora LXC_RELEASE=27
-  - LXC_DISTRO=fedora LXC_RELEASE=26
-  - LXC_DISTRO=fedora LXC_RELEASE=25
-install:
-- if [ "$ANSIBLE_VERSION" ]; then pip install $ANSIBLE_VERSION; else pip install ansible; fi
-- printf '[defaults]\nroles_path=../\ncallback_whitelist=profile_tasks' >ansible.cfg
-- ansible-galaxy install lae.travis-lxc azavea.pip
-- ansible-playbook -vvv tests/install.yml -i tests/inventory
+```yaml
+test_profiles:
+  - profile: debian-stretch
+  - profile: debian-jessie
+  - profile: debian-wheezy
+  - profile: centos-7
+  - profile: centos-6
+  - profile: ubuntu-xenial
+  - profile: ubuntu-trusty
+  - profile: ubuntu-precise
+  - profile: fedora-27
+  - profile: fedora-26
+  - profile: fedora-25
 ```
 
-Test containers are given hostnames of the format `{{ host_prefix }}##.lxc`
-(where `##` is a zero-padded integer starting from `1`). `host_prefix`'s default
-is `test` - e.g. hostnames would become `test01.lxc`, `test02.lxc` and so forth.
+You can look at `vars/main.yml` for more information about those profiles.
 
-To create more than 1 test container, increase `host_quantity`.
+A test container, if no prefix is specified, is given a hostname in the format
+of `{{ test_profiles[x].profile }}-{{ suffix }}`. If `test_host_suffixes` is not
+defined, `suffix` here becomes a zero-padded double digit integer starting from
+1 (up to the requested number of hosts specified by `test_hosts_per_profile`).
+
+For example, the following creates `debian01`, `debian02`, and `debian03`:
+
+```yaml
+test_profiles:
+  - profile: debian-stretch
+    prefix: debian
+test_hosts_per_profile: 3
+```
+
+The following creates `ubuntu-app-python2` and `ubuntu-app-python3`:
+
+```yaml
+test_profiles:
+  - profile: ubuntu-xenial
+    prefix: ubuntu-
+test_host_suffixes:
+  - app-python2
+  - app-python3
+```
 
 You can also override the container configuration used, if necessary (for e.g.
 mounting a shared folder):
@@ -65,14 +256,14 @@ test containers as well:
     additional_packages:
       - make
 
-Example Playbook
-----------------
+If caching is identified to be enabled in `.travis.yml`, you can selectively
+cache a subset of your test profiles by specifying them in `lxc_cache_profiles`.
+These must be valid profiles and present in `test_profiles`.
 
-See `example.yml`, as well as `.travis.yml`. Some more concrete documentation
-will be written later.
+To cache to directory different from `$HOME/lxc`, modify `lxc_cache_directory`.
 
 Contributors
 ------------
 
-Musee Ullah <lae@lae.is> (author and maintainer)  
-Wilmar den Ouden <@wilmardo>
+Musee Ullah ([@lae](https://github.com/lae), <lae@lae.is>)
+Wilmar den Ouden ([@wilmardo](https://github.com/wilmardo))

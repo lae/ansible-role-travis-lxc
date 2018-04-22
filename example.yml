@@ -2,6 +2,22 @@
 - hosts: localhost
   connection: local
   roles:
-    - { name: lae.travis-lxc }
+    - lae.travis-lxc
   vars:
-    host_quantity: 2
+    test_profiles:
+      - profile: debian-stretch
+      - profile: ubuntu-xenial
+      - profile: centos-7
+        prefix: centos-seven
+    hosts_per_profile: 2
+
+# This will create the following containers:
+#
+# debian-stretch-01.lxc     Debian 9
+# debian-stretch-02.lxc     Debian 9
+# ubuntu-xenial-01.lxc      Ubuntu 16.04
+# ubuntu-xenial-02.lxc      Ubuntu 16.04
+# centos-seven01.lxc        CentOS 7
+# centos-seven02.lxc        CentOS 7
+#
+# They can also be accessed without the .lxc TLD, i.e. debian-stretch-01 is valid inventory
