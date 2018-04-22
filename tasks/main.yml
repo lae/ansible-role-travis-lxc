@@ -1,5 +1,5 @@
 ---
-# tasks file for ansible-role-travis-lxc
+# tasks file for lae.travis-lxc
 - set_fact:
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
@@ -22,6 +22,30 @@
     ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
 
 - block:
+  - name: Extract all cached container root filesystems
+    shell: "[ -f {{ __rootfs_tarball }} ] && tar -C / -I pigz -xf {{ __rootfs_tarball }}"
+    async: 1800
+    poll: 0
+    changed_when: false
+    register: __cache_restore_jobs
+    args:
+      warn: false
+      creates: "{{ travis_lxc_profiles[item].rootfs }}"
+    with_items: "{{ lxc_cache_profiles }}"
+    when: lxc_cache_enabled
+    vars:
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
+
+  - name: Wait until cached root filesystems have been extracted
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __cache_restore
+    ignore_errors: true
+    until: __cache_restore.finished
+    retries: 100
+    with_items: "{{ __cache_restore_jobs.results }}"
+    when: "lxc_cache_enabled and 'ansible_job_id' in item"
+
   - name: Prepare a single LXC container per profile as a base container
     lxc_container:
       name: "{{ item.prefix | default(item.profile) }}"
@@ -81,6 +105,50 @@
     retries: 300
     with_items: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
+
+  # Here we're identifying if any files, excepting those that match rootfs_exclude
+  # in our profiles, have been modified since the environment was booted. If so,
+  # or if we don't find a cached tarball for the profile we're executing on,
+  # we'll create a compressed tarball using parallel gzip and setting all file
+  # modification times to the unix epoch of the rootfs (w/o excludes).
+  - name: Archive all container root filesystems
+    shell: "
+      modified_file_count=$(
+        find {{ __rootfs }} -newermt \"$(uptime -s)\" -type f
+          {% for path in __rootfs_exclude %}
+          -not -path \"{{ __rootfs }}{{ path }}\"
+          {% endfor %}
+        | wc -l);
+      [ $modified_file_count -gt 0 -o ! -f {{ __rootfs_tarball }} ] &&
+      tar --mtime=@0 -I pigz
+        {% for path in __rootfs_exclude %}
+        --exclude=\"{{ __rootfs }}{{ path }}\"
+        {% endfor %}
+        -cf {{ __rootfs_tarball }} {{ __rootfs }} &&
+      chown {{ ansible_user_id }}: {{ __rootfs_tarball }}"
+    async: 1800
+    poll: 0
+    changed_when: false
+    register: __cache_save_jobs
+    args:
+      warn: false
+      creates: "{{ __rootfs_tarball }}"
+    with_items: "{{ lxc_cache_profiles }}"
+    when: lxc_cache_enabled
+    vars:
+      __rootfs: "{{ travis_lxc_profiles[item].rootfs }}"
+      __rootfs_exclude: "{{ travis_lxc_profiles[item].rootfs_exclude }}"
+      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
+
+  - name: Wait for all root filesystem archivals to complete
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: __cache_save
+    ignore_errors: true
+    until: __cache_save.finished
+    retries: 100
+    with_items: "{{ __cache_save_jobs.results }}"
+    when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Create an .ssh directory in the base containers
     file:

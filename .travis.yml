@@ -13,11 +13,8 @@ env:
 - ANSIBLE_VERSION='<2.5.0' # 2.4.x
 - ANSIBLE_VERSION='<2.4.0' # 2.3.x
 - LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=-v0.6.1 # Backwards compatibility test
-before_cache:
-- sudo mkdir $HOME/lxc && sudo tar cf $HOME/lxc/cache.tar /var/cache/lxc/ && sudo
-  chown $USER. $HOME/lxc/cache.tar
 install:
-- sudo tar xf $HOME/lxc/cache.tar -C / || true
+- ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
   elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
   else pip install ansible; fi
