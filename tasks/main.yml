@@ -167,7 +167,7 @@
   - name: Create all of our test LXC containers via cloning
     lxc_container:
       name: "{{ item.0.prefix | default(item.0.profile) }}"
-      clone_name: "{{ item.0.prefix | default(item.0.profile) }}{{ item.1 }}"
+      clone_name: "{{ item.0.prefix | default(item.0.profile + '-') }}{{ item.1 }}"
       clone_snapshot: true
       backing_store: overlayfs
       state: stopped

@@ -67,7 +67,7 @@
       {% if 'prefix' in test_profile %}\
       {{ __found_prefixes.append(test_profile.prefix) }}\
       {% else %}\
-      {{ __found_prefixes.append(test_profile.profile) }}\
+      {{ __found_prefixes.append(test_profile.profile + '-') }}\
       {% endif %}\
       {% endfor %}\
       {{ (__found_prefixes | unique | list | length) == ( __found_prefixes | list | length )}}"
