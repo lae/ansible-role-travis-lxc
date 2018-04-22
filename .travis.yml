@@ -2,7 +2,6 @@ language: python
 sudo: required
 dist: trusty
 cache:
-  timeout: 600
   directories:
   - "$HOME/lxc"
   pip: true

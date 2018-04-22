@@ -13,6 +13,8 @@ travis_lxc_profiles:
       - sudo
       - gnupg2
     rootfs: /var/cache/lxc/debian/rootfs-wheezy-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   debian-jessie:
     label: "Debian Jessie (8)"
     packages:
@@ -22,6 +24,8 @@ travis_lxc_profiles:
       - sudo
       - gnupg2
     rootfs: /var/cache/lxc/debian/rootfs-jessie-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   debian-stretch:
     label: "Debian Stretch (9)"
     packages:
@@ -31,6 +35,8 @@ travis_lxc_profiles:
       - sudo
       - gnupg2
     rootfs: /var/cache/lxc/debian/rootfs-stretch-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   ubuntu-precise:
     label: "Ubuntu Precise Pangolin (12.04)"
     packages:
@@ -39,6 +45,8 @@ travis_lxc_profiles:
       - curl
       - sudo
     rootfs: /var/cache/lxc/precise/rootfs-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   ubuntu-trusty:
     label: "Ubuntu Trusty Tahr (14.04)"
     packages:
@@ -47,6 +55,8 @@ travis_lxc_profiles:
       - curl
       - sudo
     rootfs: /var/cache/lxc/trusty/rootfs-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   ubuntu-xenial:
     label: "Ubuntu Xenus Xenial (16.04)"
     packages:
@@ -55,6 +65,8 @@ travis_lxc_profiles:
       - curl
       - sudo
     rootfs: /var/cache/lxc/xenial/rootfs-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   centos-6:
     label: "CentOS 6"
     packages:
@@ -65,6 +77,11 @@ travis_lxc_profiles:
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/centos/x86_64/6/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/yum
+      - /var/lib/yum/uuid
+      - "/var/lib/rpm/__db.*"
   centos-7:
     label: "CentOS 7"
     packages:
@@ -75,6 +92,11 @@ travis_lxc_profiles:
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/centos/x86_64/7/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/yum
+      - /var/lib/yum/uuid
+      - "/var/lib/rpm/__db.*"
   fedora-25:
     label: "Fedora 25"
     packages:
@@ -84,6 +106,15 @@ travis_lxc_profiles:
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/25-x86_64/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/dnf
+      - "/var/lib/rpm/__db.*"
+      - /etc/resolv.conf
+      - /etc/pki/nssdb/key*.db
+      - /etc/pki/nssdb/cert*.db
+      - "/var/log/dnf*.log"
+      - /var/log/hawkey.log
   fedora-26:
     label: "Fedora 26"
     packages:
@@ -93,6 +124,15 @@ travis_lxc_profiles:
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/26-x86_64/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/dnf
+      - "/var/lib/rpm/__db.*"
+      - /etc/resolv.conf
+      - /etc/pki/nssdb/key*.db
+      - /etc/pki/nssdb/cert*.db
+      - "/var/log/dnf*.log"
+      - /var/log/hawkey.log
   fedora-27:
     label: "Fedora 27"
     packages:
@@ -102,6 +142,14 @@ travis_lxc_profiles:
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/27-x86_64/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/dnf
+      - "/var/lib/rpm/__db.*"
+      - /var/lib/rpm/.dbenv.lock
+      - /etc/resolv.conf
+      - "/var/log/dnf*.log"
+      - /var/log/hawkey.log
 travis_lxc_packages:
   - lxc
   - lxc-templates

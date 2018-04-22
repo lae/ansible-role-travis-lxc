@@ -1,5 +1,5 @@
 ---
-# tasks file for ansible-role-travis-lxc
+# tasks file for lae.travis-lxc
 - set_fact:
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
@@ -23,7 +23,7 @@
 
 - block:
   - name: Extract all cached container root filesystems
-    shell: "tar -C / -I pigz -xf {{ __rootfs_tarball }} && rm {{ __rootfs_tarball }}"
+    shell: "[ -f {{ __rootfs_tarball }} ] && tar -C / -I pigz -xf {{ __rootfs_tarball }}"
     async: 1800
     poll: 0
     changed_when: false
@@ -31,7 +31,6 @@
     args:
       warn: false
       creates: "{{ travis_lxc_profiles[item].rootfs }}"
-      removes: "{{ __rootfs_tarball }}"
     with_items: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
@@ -108,7 +107,11 @@
     when: "'ansible_job_id' in item"
 
   - name: Archive all container root filesystems
-    shell: "tar --mtime=0 -I pigz -cf {{ __rootfs_tarball }} {{ travis_lxc_profiles[item].rootfs }} && chown {{ ansible_user_id }}: {{ __rootfs_tarball }}"
+    shell: >-
+      modified_file_count=$(find {{ __rootfs }} -newermt "$(uptime -s)" -type f {% for path in __rootfs_exclude %}-not -path "{{ __rootfs }}{{ path }}" {% endfor %} | wc -l);
+      [ $modified_file_count -gt 0 -o ! -f {{ __rootfs_tarball }} ] &&
+      tar --mtime=@0 -I pigz {% for path in __rootfs_exclude %}--exclude="{{ __rootfs }}{{ path }}" {% endfor %} -cf {{ __rootfs_tarball }} {{ __rootfs }} &&
+      chown {{ ansible_user_id }}: {{ __rootfs_tarball }}
     async: 1800
     poll: 0
     changed_when: false
@@ -119,6 +122,8 @@
     with_items: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
+      __rootfs: "{{ travis_lxc_profiles[item].rootfs }}"
+      __rootfs_exclude: "{{ travis_lxc_profiles[item].rootfs_exclude }}"
       __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
 
   - name: Wait for all root filesystem archivals to complete
