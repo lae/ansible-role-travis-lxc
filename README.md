@@ -28,9 +28,11 @@ install:
 before_script: cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v deploy.yml
-- unbuffer ansible-playbook -i inventory deploy.yml >idempotency.log 2>&1
-- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0.*failed=0.*" && (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; cat idempotency.log; exit 1)'
+- ansible-playbook -i inventory -v deploy.yml
+- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -i inventory -vv
+  deploy.yml > idempotency.log 2>&1 || (e=$?; cat idempotency.log; exit $e)'
+- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0 .*failed=0 .*" &&
+  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; exit 1)'
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 ```
 
@@ -265,5 +267,5 @@ To cache to directory different from `$HOME/lxc`, modify `lxc_cache_directory`.
 Contributors
 ------------
 
-Musee Ullah ([@lae](https://github.com/lae), <lae@lae.is>)
+Musee Ullah ([@lae](https://github.com/lae), <lae@lae.is>)  
 Wilmar den Ouden ([@wilmardo](https://github.com/wilmardo))
