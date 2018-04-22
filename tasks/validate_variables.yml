@@ -35,6 +35,17 @@
   vars:
     __invalid_profiles: "{{ (test_profiles | map(attribute='profile') | list) | difference(travis_lxc_profiles.keys()) }}"
 
+# Cache directories specified in .travis.yml are automatically created by Travis
+# so we use that to extrapolate whether or not to enable caching
+- name: Check for the existence of the LXC cache directory
+  stat:
+    path: "{{ lxc_cache_directory }}"
+  register: __cache_directory
+
+- name: Enable LXC caching if the LXC cache directory exists
+  set_fact:
+    lxc_cache_enabled: "{{ __cache_directory.stat.isdir is defined and __cache_directory.stat.isdir }}"
+
 - block:
   - name: If left unspecified, set caching profiles to match test profiles
     set_fact:
@@ -47,17 +58,6 @@
       msg: "The following cache profile(s) were specified but not present in test_profiles: {{ __invalid_cache_profiles | join(' ') }}"
     vars:
       __invalid_cache_profiles: "{{ lxc_cache_profiles | difference(test_profiles | map(attribute='profile') | list) }}"
-
-  - name: Check for the existence of the LXC cache directory
-    stat:
-      path: "{{ lxc_cache_directory }}"
-    register: __cache_directory
-
-  - name: Disable LXC caching tasks if LXC cache directory doesn't exist
-    set_fact:
-      lxc_cache_enabled: false
-    when: __cache_directory.stat.isdir is defined and not __cache_directory.stat.isdir
-
   when: lxc_cache_enabled
 
 - assert:
