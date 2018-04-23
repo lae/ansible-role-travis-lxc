@@ -258,6 +258,10 @@ These must be valid profiles and present in `test_profiles`.
 
 To cache to directory different from `$HOME/lxc`, modify `lxc_cache_directory`.
 
+If you need to disable the usage of OverlayFS in the LXC containers (e.g. if
+you're attempting to use OverlayFS inside of the LXC container), set
+`lxc_use_overlayfs` to `no` (or any `False` variant)
+
 Contributors
 ------------
 
