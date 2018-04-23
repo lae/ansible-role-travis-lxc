@@ -14,3 +14,4 @@ container_config:
 additional_packages: []
 lxc_cache_directory: "/home/{{ ansible_user_id }}/lxc"
 #lxc_cache_profiles: "{{ test_profiles | map(attribute='profile') | list }}"
+lxc_use_overlayfs: yes

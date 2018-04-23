@@ -8,3 +8,4 @@
       - make
       - m4
     host_quantity: 2
+    lxc_use_overlayfs: no
