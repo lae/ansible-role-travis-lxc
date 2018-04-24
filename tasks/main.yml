@@ -102,7 +102,7 @@
     vars:
       __template: "{{ item.invocation.module_args.template }}"
 
-  - name: Wait for package installations to complete in CentOS containers
+  - name: Wait for package installations to complete in those containers
     async_status:
       jid: "{{ item.ansible_job_id }}"
     register: __post_bootstrap
@@ -110,6 +110,15 @@
     retries: 300
     with_items: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
+
+  - name: Enable SSH in Alpine
+    lxc_container:
+      name: "{{ item.lxc_container.name }}"
+      container_command: "rc-update add sshd"
+    with_items: "{{ __base_cts.results }}"
+    when:
+      - item | changed
+      - "item.invocation.module_args.template == 'alpine'"
 
   # Here we're identifying if any files, excepting those that match rootfs_exclude
   # in our profiles, have been modified since the environment was booted. If so,

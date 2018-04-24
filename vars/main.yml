@@ -170,6 +170,7 @@ travis_lxc_profiles:
       - python
       - ca-certificates
       - sudo
+      - openssh
     rootfs: /var/cache/lxc/alpine/apk/x86_64
     rootfs_exclude:
       - "/*.pyc"
