@@ -48,7 +48,7 @@
 
   - name: Prepare a single LXC container per profile as a base container
     lxc_container:
-      name: "{{ item.prefix | default(item.profile) }}"
+      name: "{{ item.prefix | default(__profile_data.prefix) }}base"
       template: "{{ __template }}"
       template_options: "\
         --release {{ __release }}
@@ -57,12 +57,14 @@
         {% elif __template == 'ubuntu' %}\
         --mirror {{ __travis_ubuntu_mirror }}
         {% endif %}\
-        {% if __template != 'centos' %}\
+        {% if __template not in ['centos', 'alpine'] %}\
         --packages {{ __packages | join(' ' if __template == 'fedora' else ',') }}
+        {% elif __template == 'alpine' %}
+        {{ __packages | join(' ') }}
         {% endif %}"
       container_config: "{{ container_config }}"
       state: stopped
-    environment: "{{ travis_lxc_profiles[item.profile].environment | default({}) }}"
+    environment: "{{ __profile_data.environment | default({}) }}"
     register: __base_ct_jobs
     async: 7200
     poll: 0
@@ -72,7 +74,8 @@
     vars:
       __template: "{{ item.profile.split('-').0 }}"
       __release: "{{ item.profile.split('-').1 }}"
-      __packages: "{{ travis_lxc_profiles[item.profile].packages + additional_packages }}"
+      __profile_data: "{{ travis_lxc_profiles[item.profile] }}"
+      __packages: "{{ __profile_data.packages + additional_packages }}"
 
   - name: Wait for base containers to finish bootstrapping
     async_status:
@@ -82,12 +85,12 @@
     retries: 300
     with_items: "{{ __base_ct_jobs.results }}"
 
-  - name: Install packages in containers using the CentOS template
+  - name: Install packages in containers using CentOS template
     lxc_container:
       name: "{{ item.lxc_container.name }}"
       container_command: "\
         until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done;
-        yum install -y {{ (travis_lxc_profiles[item.item.item.profile].packages + additional_packages) | join(' ') }}"
+        yum install -y {{ __packages | join(' ') }}"
     register: __post_bootstrap_jobs
     async: 7200
     poll: 0
@@ -96,6 +99,8 @@
     when:
       - item | changed
       - "item.invocation.module_args.template == 'centos'"
+    vars:
+      __packages: "{{ travis_lxc_profiles[item.item.item.profile].packages + additional_packages }}"
 
   - name: Wait for package installations to complete in CentOS containers
     async_status:
@@ -166,8 +171,8 @@
 
   - name: Create all of our test LXC containers via cloning
     lxc_container:
-      name: "{{ item.0.prefix | default(item.0.profile) }}"
-      clone_name: "{{ item.0.prefix | default(item.0.profile + '-') }}{{ item.1 }}"
+      name: "{{ item.0.prefix | default(travis_lxc_profiles[item.0.profile].prefix) }}base"
+      clone_name: "{{ item.0.prefix | default(travis_lxc_profiles[item.0.profile].prefix) }}{{ item.1 }}"
       clone_snapshot: "{{ True if lxc_use_overlayfs else False }}"
       backing_store: "{{ 'overlayfs' if lxc_use_overlayfs else 'dir' }}"
       state: stopped
