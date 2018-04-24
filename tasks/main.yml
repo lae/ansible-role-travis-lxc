@@ -111,6 +111,15 @@
     with_items: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
 
+  - name: Enable SSH in Alpine
+    file:
+      src: "/etc/init.d/sshd"
+      dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/etc/runlevels/default/sshd"
+      state: link
+      force: yes
+    with_items: "{{ __base_cts.results }}"
+    when: "item.invocation.module_args.template == 'alpine'"
+
   # Here we're identifying if any files, excepting those that match rootfs_exclude
   # in our profiles, have been modified since the environment was booted. If so,
   # or if we don't find a cached tarball for the profile we're executing on,
