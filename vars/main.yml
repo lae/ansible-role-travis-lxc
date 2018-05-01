@@ -74,6 +74,7 @@ travis_lxc_profiles:
       - ca-certificates
       - sudo
       - redhat-lsb-core
+      - yum-plugin-ovl
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/centos/x86_64/6/rootfs
@@ -89,6 +90,7 @@ travis_lxc_profiles:
       - ca-certificates
       - sudo
       - redhat-lsb-core
+      - yum-plugin-ovl
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/centos/x86_64/7/rootfs
@@ -103,6 +105,7 @@ travis_lxc_profiles:
       - python2
       - ca-certificates
       - sudo
+      - yum-plugin-ovl
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/25-x86_64/rootfs
@@ -121,6 +124,7 @@ travis_lxc_profiles:
       - python2
       - ca-certificates
       - sudo
+      - yum-plugin-ovl
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/26-x86_64/rootfs
@@ -139,6 +143,7 @@ travis_lxc_profiles:
       - python2
       - ca-certificates
       - sudo
+      - yum-plugin-ovl
     environment:
       root_expire_password: no
     rootfs: /var/cache/lxc/fedora/27-x86_64/rootfs
