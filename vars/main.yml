@@ -3,9 +3,12 @@
 travis_lxc_default_test_profiles:
   - profile: debian-stretch
     prefix: test
+# Profile names should always be $template-$release in that they can be passed
+# to lxc-create as-is. Prefixes should only contain [a-z0-9-].
 travis_lxc_profiles:
   debian-wheezy:
     label: "Debian Wheezy (7)"
+    prefix: debian-wheezy-
     packages:
       - python
       - ca-certificates
@@ -17,6 +20,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   debian-jessie:
     label: "Debian Jessie (8)"
+    prefix: debian-jessie-
     packages:
       - python
       - ca-certificates
@@ -28,6 +32,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   debian-stretch:
     label: "Debian Stretch (9)"
+    prefix: debian-stretch-
     packages:
       - python
       - ca-certificates
@@ -39,6 +44,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   ubuntu-precise:
     label: "Ubuntu Precise Pangolin (12.04)"
+    prefix: ubuntu-precise-
     packages:
       - python
       - ca-certificates
@@ -49,6 +55,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   ubuntu-trusty:
     label: "Ubuntu Trusty Tahr (14.04)"
+    prefix: ubuntu-trusty-
     packages:
       - python
       - ca-certificates
@@ -59,6 +66,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   ubuntu-xenial:
     label: "Ubuntu Xenus Xenial (16.04)"
+    prefix: ubuntu-xenial-
     packages:
       - python
       - ca-certificates
@@ -69,6 +77,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   centos-6:
     label: "CentOS 6"
+    prefix: centos-6-
     packages:
       - python
       - ca-certificates
@@ -85,6 +94,7 @@ travis_lxc_profiles:
       - "/var/lib/rpm/__db.*"
   centos-7:
     label: "CentOS 7"
+    prefix: centos-7-
     packages:
       - python
       - ca-certificates
@@ -101,6 +111,7 @@ travis_lxc_profiles:
       - "/var/lib/rpm/__db.*"
   fedora-25:
     label: "Fedora 25"
+    prefix: fedora-25-
     packages:
       - python2
       - ca-certificates
@@ -120,6 +131,7 @@ travis_lxc_profiles:
       - /var/log/hawkey.log
   fedora-26:
     label: "Fedora 26"
+    prefix: fedora-26-
     packages:
       - python2
       - ca-certificates
@@ -139,6 +151,7 @@ travis_lxc_profiles:
       - /var/log/hawkey.log
   fedora-27:
     label: "Fedora 27"
+    prefix: fedora-27-
     packages:
       - python2
       - ca-certificates
@@ -155,6 +168,17 @@ travis_lxc_profiles:
       - /etc/resolv.conf
       - "/var/log/dnf*.log"
       - /var/log/hawkey.log
+  alpine-v3.7:
+    label: "Alpine v3.7"
+    prefix: alpine-v3-7-
+    packages:
+      - python
+      - ca-certificates
+      - sudo
+      - openssh
+    rootfs: /var/cache/lxc/alpine/apk/x86_64
+    rootfs_exclude:
+      - "/*.pyc"
 travis_lxc_packages:
   - lxc
   - lxc-templates
