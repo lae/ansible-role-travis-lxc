@@ -202,24 +202,18 @@
     with_items: "{{ __clone_jobs.results }}"
     when: "'ansible_job_id' in item"
 
-  - name: Bring up all of the test LXC containers
+  - name: Start and wait for all test containers to come online
     lxc_container:
       name: "{{ item.invocation.module_args.clone_name }}"
       state: started
     register: __containers
+    until: __containers.lxc_container.ips
+    retries: 300
     with_items: "{{ __clone.results }}"
-
-  - name: Wait for network connectivity on all containers
-    lxc_container:
-      name: "{{ item.lxc_container.name }}"
-      container_command: "until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done"
-    register: __container_addresses
-    changed_when: false
-    with_items: "{{ __containers.results }}"
 
   - set_fact:
       lxc_hosts: "[\
-        {% for ct in (__container_addresses.results | map(attribute='lxc_container') | list) %}\
+        {% for ct in (__containers.results | map(attribute='lxc_container') | list) %}\
         {'name': '{{ ct.name }}', 'ip': '{{ ct.ips[0] }}'}\
         {% if not loop.last %}, {% endif %}\
         {% endfor %}\
