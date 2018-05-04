@@ -1,15 +1,20 @@
 ---
 - block:
-  - name: Symlink OS python-apt into Travis Python virtualenv
-    file:
-      src: "/usr/lib/python2.7/dist-packages/{{ item }}"
-      path: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python2.7/site-packages/{{ item }}"
-      state: link
-    with_items:
-      - apt
-      - apt_pkg.so
-      - apt_inst.so
-      - aptsources
+  - name: Install libapt-pkg-dev as build dependency for python-apt
+    command: apt-get install -y libapt-pkg-dev
+    args:
+      creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
+
+  - name: Clone the python-apt source repository
+    git:
+      repo: https://git.launchpad.net/python-apt
+      dest: /usr/local/src/python-apt
+      version: 1.1.0_beta5
+      depth: 1
+
+  - name: Install the python-apt library from local source
+    pip:
+      name: file:///usr/local/src/python-apt
 
   - name: Configure LXC PPA
     apt_repository:
@@ -24,7 +29,7 @@
     with_items: "{{ travis_lxc_packages }}"
   become: True
 
-- name: Install needed Python libraries
+- name: Install needed Python libraries from PyPI
   pip:
     name: "{{ item }}"
     state: latest
