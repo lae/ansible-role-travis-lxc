@@ -21,3 +21,4 @@
       - profile: fedora-27
       - profile: fedora-26
       - profile: fedora-25
+      - profile: alpine-v3.7
