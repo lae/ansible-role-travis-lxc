@@ -1,18 +1,26 @@
 language: python
+python:
+  - "2.7"
+  - "3.6"
 sudo: required
 dist: trusty
 cache:
   directories:
   - "$HOME/lxc"
   pip: true
+env:
+  - ANSIBLE_VERSION='<2.6.0' # 2.5.x
 matrix:
   fast_finish: true
-env:
-- ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
-- ANSIBLE_VERSION='<2.6.0' # 2.5.x
-- ANSIBLE_VERSION='<2.5.0' # 2.4.x
-- ANSIBLE_VERSION='<2.4.0' # 2.3.x
-- LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=_v0.6_compat # Backwards compatibility test
+  include:
+    - python: '2.7'
+      env: ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+    - python: '2.7'
+      env: ANSIBLE_VERSION='<2.5.0' # 2.4.x
+    - python: '2.7'
+      env: ANSIBLE_VERSION='<2.4.0' # 2.3.x
+    - python: '2.7'
+      env: LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=_v0.6_compat # Backwards compatibility test
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
