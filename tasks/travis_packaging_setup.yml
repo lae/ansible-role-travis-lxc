@@ -1,22 +1,32 @@
 ---
 - block:
+  # This needs to be done using a command module because the apt module is
+  # broken in the Travis CI virtualenv by default.
+  # The version is pinned to 1.2.10 to ensure that the version from apt-backport
+  # is installed - which Travis CI appears to use.
   - name: Install libapt-pkg-dev as build dependency for python-apt
     command: "apt-get install -y libapt-pkg-dev=1.2.10"
     args:
       creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
+      warn: False
 
+  # 1.1.0_beta5 is compatible with the above package
   - name: Clone the python-apt source repository
     git:
       repo: https://git.launchpad.net/python-apt
       dest: /usr/local/src/python-apt
       version: 1.1.0_beta5
       depth: 1
+  become: True
 
-  - name: Install the python-apt library from local source
-    pip:
-      name: file:///usr/local/src/python-apt
-      virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+# After this task, the apt module can be used without problem. There's no need
+# to be root while running this, so it's outside of the blocks.
+- name: Install the python-apt library from local source
+  pip:
+    name: file:///usr/local/src/python-apt
+    virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
 
+- block:
   - name: Configure LXC PPA
     apt_repository:
       repo: "ppa:ubuntu-lxc/stable"
