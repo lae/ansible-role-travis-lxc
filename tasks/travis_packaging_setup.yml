@@ -1,7 +1,7 @@
 ---
 - block:
   - name: Install libapt-pkg-dev as build dependency for python-apt
-    command: apt-get install -y libapt-pkg-dev
+    command: "apt-get install -y libapt-pkg-dev=1.2.10"
     args:
       creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
 
