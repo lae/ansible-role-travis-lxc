@@ -30,12 +30,12 @@
     with_items: "{{ travis_lxc_packages }}"
   become: True
 
-- name: Install needed Python libraries from PyPI
+- name: Install lxc-python2 if running with Python 2
   pip:
-    name: "{{ item }}"
+    name: lxc-python2
     state: latest
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
-  with_items: "{{ travis_lxc_eggs }}"
+  when: ansible_python.version.major == 2
 
 - name: Identify Travis CI's local Ubuntu mirror
   shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'

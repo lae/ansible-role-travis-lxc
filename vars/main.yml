@@ -163,8 +163,6 @@ travis_lxc_packages:
   - debootstrap
   - expect-dev
   - pigz
-travis_lxc_eggs:
-  - lxc-python2
 travis_lxc_network_config:
   - "lxc.net.0.type = veth"
   - "lxc.net.0.link = lxcbr0"
