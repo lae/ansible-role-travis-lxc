@@ -69,6 +69,7 @@ travis_lxc_profiles:
       - "/*.pyc"
   ubuntu-bionic:
     label: "Ubuntu Bionic Beaver (18.04)"
+    prefix: ubuntu-bionic-
     packages:
       - python
       - ca-certificates
