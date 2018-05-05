@@ -55,7 +55,7 @@
         {% if __template == 'debian' %}\
         --mirror http://deb.debian.org/debian
         {% elif __template == 'ubuntu' %}\
-        --mirror {{ __travis_ubuntu_mirror }}
+        --mirror http://mirror.math.princeton.edu/pub/ubuntu
         {% endif %}\
         {% if __template != 'centos' %}\
         --packages {{ __packages | join(' ' if __template == 'fedora' else ',') }}
