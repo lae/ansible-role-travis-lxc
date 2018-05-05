@@ -14,12 +14,9 @@
     mode: 0700
 
 - name: Generate local ssh-rsa key
-  user:
-    name: "{{ ansible_user_id }}"
-    generate_ssh_key: true
-    ssh_key_file: "~{{ ansible_user_id }}/.ssh/id_rsa"
-    ssh_key_type: rsa
-    ssh_key_comment: "{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest"
+  command: "ssh-keygen -t rsa -N '' -C '{{ ansible_user_id }}@{{ ansible_hostname }}-lxctest' -f ~{{ ansible_user_id }}/.ssh/id_rsa"
+  args:
+    creates: "~{{ ansible_user_id }}/.ssh/id_rsa"
 
 - block:
   - name: Extract all cached container root filesystems
@@ -231,8 +228,7 @@
       src: hosts.j2
       dest: "/var/lib/lxc/{{ item.name }}/{{ 'delta0' if lxc_use_overlayfs else 'rootfs' }}/etc/hosts"
     with_items: "{{ lxc_hosts }}"
-
-  become: true
+  become: True
 
 - name: Collect SSH host keys from all containers
   shell: "ssh-keyscan {{ item.name }}.lxc {{ item.name }} > ~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
