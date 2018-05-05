@@ -43,7 +43,6 @@
 - name: Install LXC Python library
   pip:
     name: "{{ 'https://github.com/lxc/python3-lxc/archive/python3-lxc-3.0.1.tar.gz' if ansible_python.version.major == 3 else 'lxc_python2' }}"
-    state: latest
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
 
 - name: Identify Travis CI's local Ubuntu mirror
