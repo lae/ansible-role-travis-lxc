@@ -116,11 +116,19 @@ And finally, the inventory:
 debian-stretch-01
 ubuntu-xenial-01
 centos-7-01
+
+[all:vars]
+ansible_ssh_user=root
 ```
 
 Hostnames are generated from two parts, a prefix and suffix. By default, these
 are generated from the `profile` key in `test_profiles` in the format of
 `{{ profile }}-{{ suffix }}`, where suffix by default is `01`.
+
+The upstream LXC containers only create a root user by default, hence it's
+required that you tell Ansible to connect to the LXC hosts as root (like in the
+inventory above or in any other valid way of configuring the SSH user). This
+requirement may change in a future release.
 
 > **Note**: If `test_profiles` is not specified, the role defaults to creating
 > one Debian Stretch container named `test01.lxc` (which is further overridable
