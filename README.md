@@ -57,6 +57,7 @@ build process, but the following is what typically serves most purposes:
       - profile: debian-stretch
       - profile: ubuntu-xenial
       - profile: centos-7
+      - profile: alpine-v3.7
 
 - hosts: all
   tasks: []
@@ -116,6 +117,7 @@ And finally, the inventory:
 debian-stretch-01
 ubuntu-xenial-01
 centos-7-01
+alpine-v3-7-01
 
 [all:vars]
 ansible_ssh_user=root
@@ -216,6 +218,7 @@ test_profiles:
   - profile: fedora-27
   - profile: fedora-26
   - profile: fedora-25
+  - profile: alpine-v3.7
 ```
 
 You can look at `vars/main.yml` for more information about those profiles.
