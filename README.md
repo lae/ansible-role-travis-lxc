@@ -219,14 +219,18 @@ test_profiles:
   - profile: fedora-26
   - profile: fedora-25
   - profile: alpine-v3.7
+  - profile: alpine-v3.6
 ```
 
 You can look at `vars/main.yml` for more information about those profiles.
 
-A test container, if no prefix is specified, is given a hostname in the format
-of `{{ test_profiles[x].profile }}-{{ suffix }}`. If `test_host_suffixes` is not
-defined, `suffix` here becomes a zero-padded double digit integer starting from
-1 (up to the requested number of hosts specified by `test_hosts_per_profile`).
+A test container, if no prefix is specified, is given a hostname of
+`{{ profile }}-{{ suffix }}`, where `profile` is sanitized for usage in a DNS
+name. Default prefixes are defined in `vars/main.yml`, so refer to it if you
+are unsure what a particular profile's prefix is. If `test_host_suffixes` is
+not defined, `suffix` here becomes a zero-padded double digit integer starting
+from 1 (up to the requested number of hosts specified by
+`test_hosts_per_profile`).
 
 For example, the following creates `debian01`, `debian02`, and `debian03`:
 
