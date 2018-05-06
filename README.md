@@ -29,10 +29,10 @@ before_script: cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check
 - ansible-playbook -i inventory -v deploy.yml
-- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -i inventory -vv
-  deploy.yml > idempotency.log 2>&1 || (e=$?; cat idempotency.log; exit $e)'
-- 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0 .*failed=0 .*" &&
-  (echo "Idempotence: PASS"; exit 0) || (echo "Idempotence: FAIL"; exit 1)'
+- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vv -i inventory
+  deploy.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: ";
+  grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*"
+  && (echo "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 ```
 
