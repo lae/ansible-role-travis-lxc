@@ -179,6 +179,17 @@ travis_lxc_profiles:
     rootfs: /var/cache/lxc/alpine/apk/x86_64
     rootfs_exclude:
       - "/*.pyc"
+  alpine-v3.6:
+    label: "Alpine v3.6"
+    prefix: alpine-v3-6-
+    packages:
+      - python
+      - ca-certificates
+      - sudo
+      - openssh
+    rootfs: /var/cache/lxc/alpine/apk/x86_64
+    rootfs_exclude:
+      - "/*.pyc"
 travis_lxc_packages:
   - lxc
   - lxc-templates
