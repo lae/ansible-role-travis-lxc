@@ -83,6 +83,7 @@ travis_lxc_profiles:
       - ca-certificates
       - curl
       - sudo
+      - gnupg2
     rootfs: /var/cache/lxc/bionic/rootfs-amd64
     rootfs_exclude:
       - "/*.pyc"
