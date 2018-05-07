@@ -35,10 +35,10 @@ before_script: cd tests/
 script:
 - ansible-playbook -i inventory${TEST} deploy${TEST}.yml --syntax-check
 - ansible-playbook -i inventory${TEST} -v deploy${TEST}.yml
-- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -i inventory${TEST} -vv
-  deploy${TEST}.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence:
-  "; grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*" && (echo
-  "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
+- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vvi inventory${TEST}
+  deploy${TEST}.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: "
+  grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*"
+  && (echo "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v test.yml
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

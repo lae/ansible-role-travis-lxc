@@ -1,6 +1,7 @@
 ---
 # tasks file for lae.travis-lxc
-- set_fact:
+- name: Identify python interpreter and merge container_config
+  set_fact:
     ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
 
@@ -208,7 +209,8 @@
     retries: 300
     with_items: "{{ __clone.results }}"
 
-  - set_fact:
+  - name: Collect all LXC container host information into one list
+    set_fact:
       lxc_hosts: "[\
         {% for ct in (__containers.results | map(attribute='lxc_container') | list) %}\
         {'name': '{{ ct.name }}', 'ip': '{{ ct.ips[0] }}'}\
