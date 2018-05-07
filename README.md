@@ -282,3 +282,15 @@ Contributors
 
 Musee Ullah ([@lae](https://github.com/lae), <lae@lae.is>)  
 Wilmar den Ouden ([@wilmardo](https://github.com/wilmardo))
+
+Stability
+---------
+
+This role is currently still pre-1.0 and thus is not guaranteed to be stable.
+If you run into an issue using this role, please open an issue with a brief
+description and any appropriate logs so that it can be fixed and we can be one
+step closer to our first stable release.
+
+Please make sure you are pinning to a specific version (pinning to minor may be
+fine) when using this role. Failure to do so may result in your tests beginning
+to fail due to breaking changes in a minor version release before a 1.0 release.
