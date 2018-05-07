@@ -23,7 +23,7 @@ sudo: required
 dist: trusty
 install:
 - pip install ansible
-- ansible-galaxy install lae.travis-lxc,v0.7.0
+- ansible-galaxy install lae.travis-lxc,v0.7.3
 - ansible-playbook tests/install.yml -i tests/inventory
 before_script: cd tests/
 script:
