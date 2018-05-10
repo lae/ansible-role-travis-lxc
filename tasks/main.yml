@@ -2,8 +2,12 @@
 # tasks file for lae.travis-lxc
 - name: Identify python interpreter and merge container_config
   set_fact:
-    ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
+    ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') | default('/usr') }}/bin/python"
     container_config: "{{ container_config }} + {{ travis_lxc_network_config }}"
+
+- name: Gather minimum subset of facts again with correct interpreter
+  setup:
+    gather_subset: min
 
 - include: validate_variables.yml
 - include: travis_packaging_setup.yml
