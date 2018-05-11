@@ -7,7 +7,7 @@
 
 - name: Gather minimum subset of facts again with correct interpreter
   setup:
-    gather_subset: min
+    gather_subset: "{{ 'min' if ansible_version.full | version_compare('2.4.0', '>=') else 'all' }}"
 
 - include: validate_variables.yml
 - include: travis_packaging_setup.yml
