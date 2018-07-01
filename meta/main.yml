@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: travis-lxc
   author: Musee Ullah
   description: Configures LXC containers to use for testing Ansible roles on Travis CI
   company: FireEye, Inc.
