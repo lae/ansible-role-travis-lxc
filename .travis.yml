@@ -9,26 +9,23 @@ cache:
   - "$HOME/lxc"
   pip: true
 env:
-  - ANSIBLE_VERSION='<2.6.0' # 2.5.x
+  - ANSIBLE_VERSION='<2.8.0' # 2.7.x
 matrix:
   fast_finish: true
   include:
     - python: '2.7'
-      env: ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+      env: ANSIBLE_GIT_VERSION='devel' # 2.8.x development branch
     - python: '2.7'
-      env: ANSIBLE_VERSION='<2.5.0' # 2.4.x
+      env: ANSIBLE_VERSION='<2.7.0' # 2.6.x
     - python: '2.7'
-      env: ANSIBLE_VERSION='<2.4.0' # 2.3.x
+      env: ANSIBLE_VERSION='<2.6.0' # 2.5.x
     - python: '2.7'
       env: LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=_v0.6_compat # Backwards compatibility test
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
-  elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
-  else pip install ansible; fi
+  else pip install "ansible${ANSIBLE_VERSION}"; fi
 - ansible --version
-# The following is needed for default Ansible 2.3 installations
-- 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
 - git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz && ansible-galaxy install
   lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc && rm lae.travis-lxc.tar.gz
 before_script: cd tests/
