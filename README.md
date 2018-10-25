@@ -211,7 +211,6 @@ test_profiles:
   - profile: centos-6
   - profile: ubuntu-xenial
   - profile: ubuntu-trusty
-  - profile: ubuntu-precise
   - profile: fedora-27
   - profile: fedora-26
   - profile: fedora-25

@@ -87,6 +87,20 @@
     retries: 300
     with_items: "{{ __base_ct_jobs.results }}"
 
+  - name: Configure local user with sudo and prepare authorized_keys files
+    lxc_container:
+      name: "{{ item.lxc_container.name }}"
+      container_command: "\
+        useradd -m {{ ansible_user_id }} -p aikatsu -s /bin/bash;
+        printf '{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/{{ ansible_user_id }};
+        mkdir -m 0700 /root/.ssh /home/{{ ansible_user_id }}/.ssh;
+        touch /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
+        chmod 0600 /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
+        chown -R {{ ansible_user_id }}: /home/{{ ansible_user_id }}/.ssh"
+    with_items: "{{ __base_cts.results }}"
+    when:
+      - item | changed
+
   - name: Install packages in containers using CentOS template
     lxc_container:
       name: "{{ item.lxc_container.name }}"
@@ -166,19 +180,13 @@
     with_items: "{{ __cache_save_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
-  - name: Create an .ssh directory in the base containers
-    file:
-      path: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/"
-      state: directory
-      mode: 0700
-    with_items: "{{ __base_cts.results }}"
-
   - name: Copy current user's public key into base containers
     copy:
       src: "~/.ssh/id_rsa.pub"
-      dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/root/.ssh/authorized_keys"
-      mode: 0600
-    with_items: "{{ __base_cts.results }}"
+      dest: "/var/lib/lxc/{{ item.1.lxc_container.name }}/rootfs{{ item.0 }}"
+    with_nested:
+      - "['/root/.ssh/authorized_keys', '/home/{{ ansible_user_id }}/.ssh/authorized_keys']"
+      - "{{ __base_cts.results }}"
 
   - name: Create all of our test LXC containers via cloning
     lxc_container:
