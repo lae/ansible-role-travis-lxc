@@ -185,6 +185,8 @@ travis_lxc_profiles:
       - ca-certificates
       - sudo
       - openssh
+      - bash
+      - shadow
     rootfs: /var/cache/lxc/alpine/apk/x86_64
     rootfs_exclude:
       - "/*.pyc"
@@ -196,6 +198,8 @@ travis_lxc_profiles:
       - ca-certificates
       - sudo
       - openssh
+      - bash
+      - shadow
     rootfs: /var/cache/lxc/alpine/apk/x86_64
     rootfs_exclude:
       - "/*.pyc"
