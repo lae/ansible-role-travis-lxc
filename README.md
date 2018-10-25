@@ -39,7 +39,7 @@ script:
 You'll note that four files are referenced. You can decide how to define your
 build process, but the following is what typically serves most purposes:
 
-- **tests/install.yml**: executes *lae.travis-lxc* and other pre-install steps
+- **tests/install.yml**: executes `lae.travis-lxc` and other pre-install steps
 - **tests/deploy.yml**: executes the role you're testing
 - **tests/test.yml**: executes validation tests against your deployment
 - **tests/inventory**: contains a list of LXC container hostnames
@@ -55,7 +55,7 @@ build process, but the following is what typically serves most purposes:
   vars:
     test_profiles:
       - profile: debian-stretch
-      - profile: ubuntu-xenial
+      - profile: ubuntu-bionic
       - profile: centos-7
       - profile: alpine-v3.7
 
@@ -115,7 +115,7 @@ And finally, the inventory:
 
 ```ini
 debian-stretch-01
-ubuntu-xenial-01
+ubuntu-bionic-01
 centos-7-01
 alpine-v3-7-01
 
@@ -149,17 +149,14 @@ configure in `.travis.yml` and there are various ways to go about it:
 
 ```yaml
 env:
-- ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
+- ANSIBLE_GIT_VERSION='devel' # 2.8.x development branch
+- ANSIBLE_VERSION='<2.8.0' # 2.7.x
+- ANSIBLE_VERSION='<2.7.0' # 2.6.x
 - ANSIBLE_VERSION='<2.6.0' # 2.5.x
-- ANSIBLE_VERSION='<2.5.0' # 2.4.x
-- ANSIBLE_VERSION='<2.4.0' # 2.3.x
 install:
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
-  elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
-  else pip install ansible; fi
+  else pip install "ansible${ANSIBLE_VERSION}"; fi
 - ansible --version
-# The following is needed for default Ansible 2.3 installations
-- 'sudo mkdir -p /etc/ansible/roles && sudo chown $(whoami): /etc/ansible/roles'
 ```
 
 Here, we've added an install task that will either take `ANSIBLE_GIT_VERSION`,

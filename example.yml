@@ -6,7 +6,7 @@
   vars:
     test_profiles:
       - profile: debian-stretch
-      - profile: ubuntu-xenial
+      - profile: ubuntu-bionic
       - profile: centos-7
         prefix: centos-seven
     hosts_per_profile: 2
@@ -15,8 +15,8 @@
 #
 # debian-stretch-01.lxc     Debian 9
 # debian-stretch-02.lxc     Debian 9
-# ubuntu-xenial-01.lxc      Ubuntu 16.04
-# ubuntu-xenial-02.lxc      Ubuntu 16.04
+# ubuntu-bionic-01.lxc      Ubuntu 18.04
+# ubuntu-bionic-02.lxc      Ubuntu 18.04
 # centos-seven01.lxc        CentOS 7
 # centos-seven02.lxc        CentOS 7
 #
