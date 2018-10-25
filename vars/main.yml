@@ -1,8 +1,5 @@
 ---
 # vars file for lae.travis-lxc
-travis_lxc_default_test_profiles:
-  - profile: debian-stretch
-    prefix: test
 # Profile names should always be $template-$release in that they can be passed
 # to lxc-create as-is. Prefixes should only contain [a-z0-9-].
 travis_lxc_profiles:

@@ -19,8 +19,6 @@ matrix:
       env: ANSIBLE_VERSION='<2.7.0' # 2.6.x
     - python: '2.7'
       env: ANSIBLE_VERSION='<2.6.0' # 2.5.x
-    - python: '2.7'
-      env: LXC_DISTRO=ubuntu LXC_RELEASE=xenial TEST=_v0.6_compat # Backwards compatibility test
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";

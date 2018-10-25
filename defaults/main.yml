@@ -1,8 +1,8 @@
 ---
 # defaults file for lae.travis-lxc
-#test_profiles:
-#  - profile: debian-stretch
-#    prefix: test
+test_profiles:
+  - profile: debian-stretch
+    prefix: test
 #test_host_suffixes:
 #  - "-client"
 #  - "-server"
