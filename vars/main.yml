@@ -39,17 +39,6 @@ travis_lxc_profiles:
     rootfs: /var/cache/lxc/debian/rootfs-stretch-amd64
     rootfs_exclude:
       - "/*.pyc"
-  ubuntu-precise:
-    label: "Ubuntu Precise Pangolin (12.04)"
-    prefix: ubuntu-precise-
-    packages:
-      - python
-      - ca-certificates
-      - curl
-      - sudo
-    rootfs: /var/cache/lxc/precise/rootfs-amd64
-    rootfs_exclude:
-      - "/*.pyc"
   ubuntu-trusty:
     label: "Ubuntu Trusty Tahr (14.04)"
     prefix: ubuntu-trusty-
