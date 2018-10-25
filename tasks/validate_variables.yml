@@ -1,12 +1,4 @@
 ---
-# Backwards compatibility with environment-specified profiles in <0.7.0
-- name: Set a default for test_profiles if left undefined
-  set_fact:
-    test_profiles:
-      - profile: "{{ lookup('env', 'LXC_DISTRO') | default(travis_lxc_default_test_profiles.0.profile.split('-').0, true) }}-{{ lookup('env', 'LXC_RELEASE') | default(travis_lxc_default_test_profiles.0.profile.split('-').1, true) }}"
-        prefix: "{{ host_prefix | default(travis_lxc_default_test_profiles.0.prefix, true) }}"
-  when: test_profiles is not defined
-
 - name: Basic validation of test_profiles role variable
   assert:
     that:
@@ -77,20 +69,6 @@
       {% endfor %}\
       {{ (__found_prefixes | unique | list | length) == ( __found_prefixes | list | length )}}"
     msg: "There are duplicate prefixes specified in 'test_profiles'. Please ensure that you are not reusing prefix names for multiple profiles or using prefixes that conflict with profile names."
-
-# Backwards compatibility with host_quantity variable from <0.7.0
-# These conditions make it so that if user specifies test_hosts_per_profile and
-# host_quantity together, test_hosts_per_profile will take precedence.
-- name: Set test_hosts_per_profile if pre-0.7.0 usage pattern is detected
-  set_fact:
-    test_hosts_per_profile: "{{ host_quantity }}"
-  when:
-    - host_quantity is defined
-    - test_hosts_per_profile is not defined
-
-- debug:
-    msg: "Both 'test_hosts_per_profile' and 'test_host_suffixes' have been defined. 'test_hosts_per_profile' will be ignored."
-  when: test_hosts_per_profile is defined and test_host_suffixes is defined
 
 # The following set_fact ensures that:
 # - if test_hosts_per_profile isn't specified, we default to 1
