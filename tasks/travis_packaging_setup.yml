@@ -9,6 +9,7 @@
     args:
       creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
       warn: False
+    retries: 3
 
   # 1.1.0_beta5 is compatible with the above package
   - name: Clone the python-apt source repository
@@ -17,6 +18,7 @@
       dest: /usr/local/src/python-apt
       version: 1.1.0_beta5
       depth: 1
+    retries: 3
   become: True
 
 # After this task, the apt module can be used without problem. There's no need
@@ -38,12 +40,14 @@
       cache_valid_time: 3600
       state: latest
     with_items: "{{ travis_lxc_packages }}"
+    retries: 3
   become: True
 
 - name: Install LXC Python library
   pip:
     name: "{{ 'https://github.com/lxc/python3-lxc/archive/python3-lxc-3.0.1.tar.gz' if ansible_python.version.major == 3 else 'lxc_python2' }}"
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+  retries: 3
 
 - name: Identify Travis CI's local Ubuntu mirror
   shell: 'apt-cache policy python | grep -m1 -oP "https?://.*?/ubuntu"'
