@@ -209,6 +209,7 @@ travis_lxc_packages:
   - dpkg
   - yum
   - debootstrap
+  - debian-archive-keyring
   - expect-dev
   - pigz
 travis_lxc_network_config:
