@@ -124,12 +124,6 @@ Hostnames are generated from two parts, a prefix and suffix. By default, these
 are generated from the `profile` key in `test_profiles` in the format of
 `{{ profile }}-{{ suffix }}`, where suffix by default is `01`.
 
-> **Note**: If `test_profiles` is not specified, the role defaults to creating
-> one Debian Stretch container named `test01.lxc` (which is further overridable
-> with environment variables and other role variables). This is in order to
-> maintain backwards compatibility with an older version of this role but will
-> eventually be deprecated - so be sure to specify `test_profiles`.
-
 Once you have those files written, you're ready to test your role in Travis CI.
 However, you probably want more out of it, so let's go over some other topics.
 

@@ -2,9 +2,10 @@
 - name: Basic validation of test_profiles role variable
   assert:
     that:
+      - test_profiles is defined
       - test_profiles is iterable
       - test_profiles is not string
-    msg: "The variable 'test_profiles' must be a list."
+    msg: "The variable 'test_profiles' must be a list of profiles. Please check the README."
 
 - name: Ensure that there is a profile key in each test_profile
   assert:
