@@ -221,6 +221,18 @@
     retries: 300
     with_items: "{{ __clone.results }}"
 
+  - name: Remove duplicate /dev/pts entries on CentOS 6
+    lxc_container:
+      name: "{{ item.invocation.module_args.clone_name }}"
+      container_command: "\
+        until [[ $(grep -c '/dev/pts ' /etc/mtab) -lt 2 ]]; do
+          umount /dev/pts;
+        done"
+    with_items: "{{ __clone.results }}"
+    when:
+      - item is changed
+      - "item.item.item.0.profile == 'centos-6'"
+
   - name: Collect all LXC container host information into one list
     set_fact:
       lxc_hosts: "[\
