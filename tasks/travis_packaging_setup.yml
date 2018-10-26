@@ -40,6 +40,16 @@
       cache_valid_time: 3600
       state: latest
     retries: 3
+
+  - name: Patch Fedora's LXC template for 28+ support
+    patch:
+      src: fedora-28-support.patch
+      dest: /usr/share/lxc/templates/lxc-fedora
+
+  - name: Ensure Fedora LXC template is executable
+    file:
+      path: /usr/share/lxc/templates/lxc-fedora
+      mode: 0755
   become: True
 
 - name: Install LXC Python library

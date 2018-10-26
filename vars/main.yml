@@ -166,6 +166,38 @@ travis_lxc_profiles:
       - /etc/resolv.conf
       - "/var/log/dnf*.log"
       - /var/log/hawkey.log
+  fedora-28:
+    label: "Fedora 28"
+    prefix: fedora-28-
+    packages:
+      - python2
+      - ca-certificates
+      - sudo
+      - yum-plugin-ovl
+    environment:
+      root_expire_password: no
+    rootfs: /var/cache/lxc/fedora/28-x86_64/rootfs
+    rootfs_exclude:
+      - "/*.pyc"
+      - /var/cache/dnf
+      - "/var/lib/rpm/__db.*"
+      - /var/lib/rpm/.dbenv.lock
+      - /etc/resolv.conf
+      - "/var/log/dnf*.log"
+      - /var/log/hawkey.log
+  alpine-v3.8:
+    label: "Alpine v3.8"
+    prefix: alpine-v3-8-
+    packages:
+      - python
+      - ca-certificates
+      - sudo
+      - openssh
+      - bash
+      - shadow
+    rootfs: /var/cache/lxc/alpine/apk/x86_64
+    rootfs_exclude:
+      - "/*.pyc"
   alpine-v3.7:
     label: "Alpine v3.7"
     prefix: alpine-v3-7-
@@ -202,6 +234,7 @@ travis_lxc_packages:
   - debian-archive-keyring
   - expect-dev
   - pigz
+  - patch
 travis_lxc_network_config:
   - "lxc.net.0.type = veth"
   - "lxc.net.0.link = lxcbr0"

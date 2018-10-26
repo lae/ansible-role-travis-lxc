@@ -86,19 +86,6 @@
     retries: 300
     loop: "{{ __base_ct_jobs.results }}"
 
-  - name: Configure local user with sudo and prepare authorized_keys files
-    lxc_container:
-      name: "{{ item.lxc_container.name }}"
-      container_command: "\
-        useradd -m {{ ansible_user_id }} -p aikatsu -s /bin/bash;
-        printf '{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/{{ ansible_user_id }};
-        mkdir -m 0700 /root/.ssh /home/{{ ansible_user_id }}/.ssh;
-        touch /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
-        chmod 0600 /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
-        chown -R {{ ansible_user_id }}: /home/{{ ansible_user_id }}/.ssh"
-    loop: "{{ __base_cts.results }}"
-    when: item is changed
-
   - name: Install packages in containers using CentOS template
     lxc_container:
       name: "{{ item.lxc_container.name }}"
@@ -124,6 +111,20 @@
     retries: 300
     loop: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
+
+  - name: Configure local user with sudo and prepare authorized_keys files
+    lxc_container:
+      name: "{{ item.lxc_container.name }}"
+      container_command: "\
+        useradd -m {{ ansible_user_id }} -p aikatsu -s /bin/bash;
+        printf '{{ ansible_user_id }} ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/{{ ansible_user_id }};
+        mkdir -m 0700 /root/.ssh /home/{{ ansible_user_id }}/.ssh;
+        touch /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
+        chmod 0600 /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
+        chown -R {{ ansible_user_id }}: /home/{{ ansible_user_id }}/.ssh"
+    with_items: "{{ __base_cts.results }}"
+    when:
+      - item is changed
 
   # Ansible will throw the following warning:
   # [WARNING]: Cannot set fs attributes on a non-existent symlink target.
@@ -222,6 +223,18 @@
     until: __containers.lxc_container.ips
     retries: 300
     loop: "{{ __clone.results }}"
+
+  - name: Remove duplicate /dev/pts entries on CentOS 6
+    lxc_container:
+      name: "{{ item.invocation.module_args.clone_name }}"
+      container_command: "\
+        until [[ $(grep -c '/dev/pts ' /etc/mtab) -lt 2 ]]; do
+          umount /dev/pts;
+        done"
+    with_items: "{{ __clone.results }}"
+    when:
+      - item is changed
+      - "item.item.item.0.profile == 'centos-6'"
 
   - name: Collect all LXC container host information into one list
     set_fact:

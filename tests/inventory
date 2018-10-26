@@ -4,14 +4,16 @@ debian-stretch-test-[01:02]
 # e.g. test01.lxc
 debian-jessie-[01:02].lxc
 # the rest are standard fare
-debian-wheezy-[01:02]
+#debian-wheezy-[01:02]
 centos-7-[01:02]
-centos-6-01 # ignoring 02, see issue #26
+centos-6-[01:02]
 ubuntu-bionic-[01:02]
 ubuntu-xenial-[01:02]
 ubuntu-trusty-[01:02]
+fedora-28-[01:02]
 fedora-27-[01:02]
-fedora-26-[01:02]
-fedora-25-[01:02]
+#fedora-26-[01:02]
+#fedora-25-[01:02]
+alpine-v3-8-[01:02]
 alpine-v3-7-[01:02]
 alpine-v3-6-[01:02]

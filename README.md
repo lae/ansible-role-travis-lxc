@@ -57,7 +57,7 @@ build process, but the following is what typically serves most purposes:
       - profile: debian-stretch
       - profile: ubuntu-bionic
       - profile: centos-7
-      - profile: alpine-v3.7
+      - profile: alpine-v3.8
 
 - hosts: all
   tasks: []
@@ -117,7 +117,7 @@ And finally, the inventory:
 debian-stretch-01
 ubuntu-bionic-01
 centos-7-01
-alpine-v3-7-01
+alpine-v3-8-01
 
 [all:vars]
 ansible_ssh_user=root
@@ -206,17 +206,23 @@ profiles include (feel free to request/contribute new ones):
 test_profiles:
   - profile: debian-stretch
   - profile: debian-jessie
-  - profile: debian-wheezy
+  - profile: debian-wheezy # EOL
   - profile: centos-7
   - profile: centos-6
+  - profile: ubuntu-bionic
   - profile: ubuntu-xenial
   - profile: ubuntu-trusty
+  - profile: fedora-28
   - profile: fedora-27
-  - profile: fedora-26
-  - profile: fedora-25
+  - profile: fedora-26 # EOL
+  - profile: fedora-25 # EOL
+  - profile: alpine-v3.8
   - profile: alpine-v3.7
   - profile: alpine-v3.6
 ```
+
+Profiles marked as `EOL` above, while are EOL upstream, are still available, but
+no guarantees are made that they are still functional (but they probably are).
 
 You can look at `vars/main.yml` for more information about those profiles.
 
@@ -241,7 +247,7 @@ The following creates `ubuntu-app-python2` and `ubuntu-app-python3`:
 
 ```yaml
 test_profiles:
-  - profile: ubuntu-xenial
+  - profile: ubuntu-bionic
     prefix: ubuntu-
 test_host_suffixes:
   - app-python2
