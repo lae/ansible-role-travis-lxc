@@ -35,11 +35,10 @@
 
   - name: Install needed packages
     apt:
-      name: "{{ item }}"
+      name: "{{ travis_lxc_packages }}"
       update_cache: yes
       cache_valid_time: 3600
       state: latest
-    with_items: "{{ travis_lxc_packages }}"
     retries: 3
   become: True
 
