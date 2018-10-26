@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/lae/ansible-role-travis-lxc.svg?branch=master)](https://travis-ci.org/lae/ansible-role-travis-lxc)
-[![Galaxy Role](https://img.shields.io/badge/ansible--galaxy-travis--lxc-blue.svg)](https://galaxy.ansible.com/lae/travis-lxc/)
-
 lae.travis-lxc
 ==============
+
+[![Build Status](https://travis-ci.org/lae/ansible-role-travis-lxc.svg?branch=master&style=for-the-badge)](https://travis-ci.org/lae/ansible-role-travis-lxc)
+[![Ansible Galaxy Role](https://img.shields.io/ansible/role/27270.svg?style=for-the-badge)](https://galaxy.ansible.com/lae/travis-lxc)
 
 Configures and starts N LXC containers to use in the Travis CI environment for
 simpler testing of Ansible roles across different distributions.
@@ -23,16 +23,21 @@ sudo: required
 dist: trusty
 install:
 - pip install ansible
-- ansible-galaxy install lae.travis-lxc,v0.7.3
+- ansible-galaxy install lae.travis-lxc,v0.8.0
 - ansible-playbook tests/install.yml -i tests/inventory
 before_script: cd tests/
 script:
+# Validates your deployment playbook's syntax, which should contain your role
 - ansible-playbook -i inventory deploy.yml --syntax-check
+# Runs the deployment playbook
 - ansible-playbook -i inventory -v deploy.yml
+# Runs the deployment playbook again, saving output to a file called play.log,
+# then checks that there are no changed/failed tasks and fails if there are.
 - 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vv -i inventory
   deploy.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: ";
   grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*"
   && (echo "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
+# Integration tests and what not
 - ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 ```
 
@@ -59,6 +64,7 @@ build process, but the following is what typically serves most purposes:
       - profile: centos-7
       - profile: alpine-v3.8
 
+# Add any other setup tasks you might need but don't necessarily need in your role
 - hosts: all
   tasks: []
 ```
