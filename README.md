@@ -1,7 +1,7 @@
 lae.travis-lxc
 ==============
 
-[![Build Status](https://travis-ci.org/lae/ansible-role-travis-lxc.svg?branch=master&style=for-the-badge)](https://travis-ci.org/lae/ansible-role-travis-lxc)
+[![Build Status](https://img.shields.io/travis/lae/ansible-role-travis-lxc/master.svg?style=for-the-badge)](https://travis-ci.org/lae/ansible-role-travis-lxc)
 [![Ansible Galaxy Role](https://img.shields.io/ansible/role/27270.svg?style=for-the-badge)](https://galaxy.ansible.com/lae/travis-lxc)
 
 Configures and starts N LXC containers to use in the Travis CI environment for
