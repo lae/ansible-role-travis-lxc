@@ -234,6 +234,7 @@ travis_lxc_packages:
   - debian-archive-keyring
   - expect-dev
   - pigz
+  - patch
 travis_lxc_network_config:
   - "lxc.net.0.type = veth"
   - "lxc.net.0.link = lxcbr0"
