@@ -25,91 +25,91 @@
 
 - block:
   - name: Extract all cached container root filesystems
-    shell: "[ -f {{ __rootfs_tarball }} ] && tar -C / -I pigz -xf {{ __rootfs_tarball }}"
+    shell: "[ -f {{ _rootfs_tarball }} ] && tar -C / -I pigz -xf {{ _rootfs_tarball }}"
     async: 1800
     poll: 0
     changed_when: false
-    register: __cache_restore_jobs
+    register: _cache_restore_jobs
     args:
       warn: false
       creates: "{{ travis_lxc_profiles[item].rootfs }}"
     loop: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
-      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
+      _rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
 
   - name: Wait until cached root filesystems have been extracted
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __cache_restore
+    register: _cache_restore
     ignore_errors: true
-    until: __cache_restore.finished
+    until: _cache_restore.finished
     retries: 100
-    loop: "{{ __cache_restore_jobs.results }}"
+    loop: "{{ _cache_restore_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Prepare a single LXC container per profile as a base container
     lxc_container:
-      name: "{{ item.prefix | default(__profile_data.prefix) }}base"
-      template: "{{ __template }}"
+      name: "{{ item.prefix | default(_profile_data.prefix) }}base"
+      template: "{{ _template }}"
       template_options: "\
-        --release {{ __release }}
-        {% if __template == 'debian' %}\
+        --release {{ _release }}
+        {% if _template == 'debian' %}\
         --mirror http://deb.debian.org/debian
-        {% elif __template == 'ubuntu' %}\
-        --mirror {{ __travis_ubuntu_mirror }}
+        {% elif _template == 'ubuntu' %}\
+        --mirror {{ _travis_ubuntu_mirror }}
         {% endif %}\
-        {% if __template not in ['centos', 'alpine'] %}\
-        --packages {{ __packages | join(' ' if __template == 'fedora' else ',') }}
-        {% elif __template == 'alpine' %}
-        {{ __packages | join(' ') }}
+        {% if _template not in ['centos', 'alpine'] %}\
+        --packages {{ _packages | join(' ' if _template == 'fedora' else ',') }}
+        {% elif _template == 'alpine' %}
+        {{ _packages | join(' ') }}
         {% endif %}"
       container_config: "{{ container_config }}"
       state: stopped
-    environment: "{{ __profile_data.environment | default({}) }}"
-    register: __base_ct_jobs
+    environment: "{{ _profile_data.environment | default({}) }}"
+    register: _base_ct_jobs
     async: 7200
     poll: 0
     changed_when: false
     loop: "{{ test_profiles }}"
     vars:
-      __template: "{{ item.profile.split('-').0 }}"
-      __release: "{{ item.profile.split('-').1 }}"
-      __profile_data: "{{ travis_lxc_profiles[item.profile] }}"
-      __packages: "{{ __profile_data.packages + additional_packages }}"
+      _template: "{{ item.profile.split('-').0 }}"
+      _release: "{{ item.profile.split('-').1 }}"
+      _profile_data: "{{ travis_lxc_profiles[item.profile] }}"
+      _packages: "{{ _profile_data.packages + additional_packages }}"
 
   - name: Wait for base containers to finish bootstrapping
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __base_cts
-    until: __base_cts.finished
+    register: _base_cts
+    until: _base_cts.finished
     retries: 300
-    loop: "{{ __base_ct_jobs.results }}"
+    loop: "{{ _base_ct_jobs.results }}"
 
   - name: Install packages in containers using CentOS template
     lxc_container:
       name: "{{ item.lxc_container.name }}"
       container_command: "\
         until (ip addr show eth0 up | grep -q 'inet '); do sleep 1; done;
-        yum install -y {{ __packages | join(' ') }}"
-    register: __post_bootstrap_jobs
+        yum install -y {{ _packages | join(' ') }}"
+    register: _post_bootstrap_jobs
     async: 7200
     poll: 0
     changed_when: false
-    loop: "{{ __base_cts.results }}"
+    loop: "{{ _base_cts.results }}"
     when:
       - item is changed
       - "item.invocation.module_args.template == 'centos'"
     vars:
-      __packages: "{{ travis_lxc_profiles[item.item.item.profile].packages + additional_packages }}"
+      _packages: "{{ travis_lxc_profiles[item.item.item.profile].packages + additional_packages }}"
 
   - name: Wait for package installations to complete in CentOS containers
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __post_bootstrap
-    until: __post_bootstrap.finished
+    register: _post_bootstrap
+    until: _post_bootstrap.finished
     retries: 300
-    loop: "{{ __post_bootstrap_jobs.results }}"
+    loop: "{{ _post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
 
   - name: Configure local user with sudo and prepare authorized_keys files
@@ -122,7 +122,7 @@
         touch /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
         chmod 0600 /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
         chown -R {{ ansible_user_id }}: /home/{{ ansible_user_id }}/.ssh"
-    with_items: "{{ __base_cts.results }}"
+    with_items: "{{ _base_cts.results }}"
     when:
       - item is changed
 
@@ -136,7 +136,7 @@
       dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/etc/runlevels/default/sshd"
       state: link
       force: yes
-    loop: "{{ __base_cts.results }}"
+    loop: "{{ _base_cts.results }}"
     when: "item.invocation.module_args.template == 'alpine'"
 
   # Here we're identifying if any files, excepting those that match rootfs_exclude
@@ -147,49 +147,49 @@
   - name: Archive all container root filesystems
     shell: "
       modified_file_count=$(
-        find {{ __rootfs }} -newermt \"$(uptime -s)\" -type f
-          {% for path in __rootfs_exclude %}
-          -not -path \"{{ __rootfs }}{{ path }}\"
+        find {{ _rootfs }} -newermt \"$(uptime -s)\" -type f
+          {% for path in _rootfs_exclude %}
+          -not -path \"{{ _rootfs }}{{ path }}\"
           {% endfor %}
         | wc -l);
-      [ $modified_file_count -gt 0 -o ! -f {{ __rootfs_tarball }} ] &&
+      [ $modified_file_count -gt 0 -o ! -f {{ _rootfs_tarball }} ] &&
       tar --mtime=@0 -I pigz
-        {% for path in __rootfs_exclude %}
-        --exclude=\"{{ __rootfs }}{{ path }}\"
+        {% for path in _rootfs_exclude %}
+        --exclude=\"{{ _rootfs }}{{ path }}\"
         {% endfor %}
-        -cf {{ __rootfs_tarball }} {{ __rootfs }} &&
-      chown {{ ansible_user_id }}: {{ __rootfs_tarball }}"
+        -cf {{ _rootfs_tarball }} {{ _rootfs }} &&
+      chown {{ ansible_user_id }}: {{ _rootfs_tarball }}"
     async: 1800
     poll: 0
     changed_when: false
-    register: __cache_save_jobs
+    register: _cache_save_jobs
     args:
       warn: false
-      creates: "{{ __rootfs_tarball }}"
+      creates: "{{ _rootfs_tarball }}"
     loop: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
-      __rootfs: "{{ travis_lxc_profiles[item].rootfs }}"
-      __rootfs_exclude: "{{ travis_lxc_profiles[item].rootfs_exclude }}"
-      __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
+      _rootfs: "{{ travis_lxc_profiles[item].rootfs }}"
+      _rootfs_exclude: "{{ travis_lxc_profiles[item].rootfs_exclude }}"
+      _rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
 
   - name: Wait for all root filesystem archivals to complete
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __cache_save
+    register: _cache_save
     ignore_errors: true
-    until: __cache_save.finished
+    until: _cache_save.finished
     retries: 100
-    loop: "{{ __cache_save_jobs.results }}"
+    loop: "{{ _cache_save_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Copy current user's public key into base containers
     copy:
       src: "~/.ssh/id_rsa.pub"
       dest: "/var/lib/lxc/{{ item.0.lxc_container.name }}/rootfs{{ item.1 }}"
-    loop: "{{ __base_cts.results | product(__authorized_keys_paths) | list }}"
+    loop: "{{ _base_cts.results | product(_authorized_keys_paths) | list }}"
     vars:
-      __authorized_keys_paths:
+      _authorized_keys_paths:
         - /root/.ssh/authorized_keys
         - "/home/{{ ansible_user_id }}/.ssh/authorized_keys"
 
@@ -200,7 +200,7 @@
       clone_snapshot: "{{ True if lxc_use_overlayfs else False }}"
       backing_store: "{{ 'overlayfs' if lxc_use_overlayfs else 'dir' }}"
       state: stopped
-    register: __clone_jobs
+    register: _clone_jobs
     async: 7200
     poll: 0
     changed_when: false
@@ -209,20 +209,20 @@
   - name: Wait for all of the clone jobs to complete
     async_status:
       jid: "{{ item.ansible_job_id }}"
-    register: __clone
-    until: __clone.finished
+    register: _clone
+    until: _clone.finished
     retries: 300
-    loop: "{{ __clone_jobs.results }}"
+    loop: "{{ _clone_jobs.results }}"
     when: "'ansible_job_id' in item"
 
   - name: Start and wait for all test containers to come online
     lxc_container:
       name: "{{ item.invocation.module_args.clone_name }}"
       state: started
-    register: __containers
-    until: __containers.lxc_container.ips
+    register: _containers
+    until: _containers.lxc_container.ips
     retries: 300
-    loop: "{{ __clone.results }}"
+    loop: "{{ _clone.results }}"
 
   - name: Remove duplicate /dev/pts entries on CentOS 6
     lxc_container:
@@ -231,7 +231,7 @@
         until [[ $(grep -c '/dev/pts ' /etc/mtab) -lt 2 ]]; do
           umount /dev/pts;
         done"
-    with_items: "{{ __clone.results }}"
+    with_items: "{{ _clone.results }}"
     when:
       - item is changed
       - "item.item.item.0.profile == 'centos-6'"
@@ -239,7 +239,7 @@
   - name: Collect all LXC container host information into one list
     set_fact:
       lxc_hosts: "[\
-        {% for ct in (__containers.results | map(attribute='lxc_container') | list) %}\
+        {% for ct in (_containers.results | map(attribute='lxc_container') | list) %}\
         {'name': '{{ ct.name }}', 'ip': '{{ ct.ips[0] }}'}\
         {% if not loop.last %}, {% endif %}\
         {% endfor %}\

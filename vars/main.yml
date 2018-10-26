@@ -89,7 +89,7 @@ travis_lxc_profiles:
       - "/*.pyc"
       - /var/cache/yum
       - /var/lib/yum/uuid
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
   centos-7:
     label: "CentOS 7"
     prefix: centos-7-
@@ -106,7 +106,7 @@ travis_lxc_profiles:
       - "/*.pyc"
       - /var/cache/yum
       - /var/lib/yum/uuid
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
   fedora-25:
     label: "Fedora 25"
     prefix: fedora-25-
@@ -121,7 +121,7 @@ travis_lxc_profiles:
     rootfs_exclude:
       - "/*.pyc"
       - /var/cache/dnf
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
       - /etc/resolv.conf
       - /etc/pki/nssdb/key*.db
       - /etc/pki/nssdb/cert*.db
@@ -141,7 +141,7 @@ travis_lxc_profiles:
     rootfs_exclude:
       - "/*.pyc"
       - /var/cache/dnf
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
       - /etc/resolv.conf
       - /etc/pki/nssdb/key*.db
       - /etc/pki/nssdb/cert*.db
@@ -161,7 +161,7 @@ travis_lxc_profiles:
     rootfs_exclude:
       - "/*.pyc"
       - /var/cache/dnf
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
       - /var/lib/rpm/.dbenv.lock
       - /etc/resolv.conf
       - "/var/log/dnf*.log"
@@ -180,7 +180,7 @@ travis_lxc_profiles:
     rootfs_exclude:
       - "/*.pyc"
       - /var/cache/dnf
-      - "/var/lib/rpm/__db.*"
+      - "/var/lib/rpm/_db.*"
       - /var/lib/rpm/.dbenv.lock
       - /etc/resolv.conf
       - "/var/log/dnf*.log"
