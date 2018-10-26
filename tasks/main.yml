@@ -7,7 +7,7 @@
 
 - name: Gather minimum subset of facts again with correct interpreter
   setup:
-    gather_subset: "{{ 'min' if ansible_version.full | version_compare('2.4.0', '>=') else 'all' }}"
+    gather_subset: "{{ 'min' if ansible_version.full is version_compare('2.4.0', '>=') else 'all' }}"
 
 - include: validate_variables.yml
 - include: travis_packaging_setup.yml
@@ -33,7 +33,7 @@
     args:
       warn: false
       creates: "{{ travis_lxc_profiles[item].rootfs }}"
-    with_items: "{{ lxc_cache_profiles }}"
+    loop: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
       __rootfs_tarball: "{{ lxc_cache_directory }}/{{ item }}.tar.gz"
@@ -45,7 +45,7 @@
     ignore_errors: true
     until: __cache_restore.finished
     retries: 100
-    with_items: "{{ __cache_restore_jobs.results }}"
+    loop: "{{ __cache_restore_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Prepare a single LXC container per profile as a base container
@@ -71,8 +71,7 @@
     async: 7200
     poll: 0
     changed_when: false
-    with_items:
-      - "{{ test_profiles }}"
+    loop: "{{ test_profiles }}"
     vars:
       __template: "{{ item.profile.split('-').0 }}"
       __release: "{{ item.profile.split('-').1 }}"
@@ -85,7 +84,7 @@
     register: __base_cts
     until: __base_cts.finished
     retries: 300
-    with_items: "{{ __base_ct_jobs.results }}"
+    loop: "{{ __base_ct_jobs.results }}"
 
   - name: Configure local user with sudo and prepare authorized_keys files
     lxc_container:
@@ -97,9 +96,8 @@
         touch /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
         chmod 0600 /root/.ssh/authorized_keys /home/{{ ansible_user_id }}/.ssh/authorized_keys;
         chown -R {{ ansible_user_id }}: /home/{{ ansible_user_id }}/.ssh"
-    with_items: "{{ __base_cts.results }}"
-    when:
-      - item | changed
+    loop: "{{ __base_cts.results }}"
+    when: item is changed
 
   - name: Install packages in containers using CentOS template
     lxc_container:
@@ -111,9 +109,9 @@
     async: 7200
     poll: 0
     changed_when: false
-    with_items: "{{ __base_cts.results }}"
+    loop: "{{ __base_cts.results }}"
     when:
-      - item | changed
+      - item is changed
       - "item.invocation.module_args.template == 'centos'"
     vars:
       __packages: "{{ travis_lxc_profiles[item.item.item.profile].packages + additional_packages }}"
@@ -124,16 +122,20 @@
     register: __post_bootstrap
     until: __post_bootstrap.finished
     retries: 300
-    with_items: "{{ __post_bootstrap_jobs.results }}"
+    loop: "{{ __post_bootstrap_jobs.results }}"
     when: "'ansible_job_id' in item"
 
+  # Ansible will throw the following warning:
+  # [WARNING]: Cannot set fs attributes on a non-existent symlink target.
+  # This must be ignored - the symlink points to a file that exists inside of
+  # the container, not localhost
   - name: Enable SSH in Alpine
     file:
       src: "/etc/init.d/sshd"
       dest: "/var/lib/lxc/{{ item.lxc_container.name }}/rootfs/etc/runlevels/default/sshd"
       state: link
       force: yes
-    with_items: "{{ __base_cts.results }}"
+    loop: "{{ __base_cts.results }}"
     when: "item.invocation.module_args.template == 'alpine'"
 
   # Here we're identifying if any files, excepting those that match rootfs_exclude
@@ -163,7 +165,7 @@
     args:
       warn: false
       creates: "{{ __rootfs_tarball }}"
-    with_items: "{{ lxc_cache_profiles }}"
+    loop: "{{ lxc_cache_profiles }}"
     when: lxc_cache_enabled
     vars:
       __rootfs: "{{ travis_lxc_profiles[item].rootfs }}"
@@ -177,16 +179,18 @@
     ignore_errors: true
     until: __cache_save.finished
     retries: 100
-    with_items: "{{ __cache_save_jobs.results }}"
+    loop: "{{ __cache_save_jobs.results }}"
     when: "lxc_cache_enabled and 'ansible_job_id' in item"
 
   - name: Copy current user's public key into base containers
     copy:
       src: "~/.ssh/id_rsa.pub"
-      dest: "/var/lib/lxc/{{ item.1.lxc_container.name }}/rootfs{{ item.0 }}"
-    with_nested:
-      - "['/root/.ssh/authorized_keys', '/home/{{ ansible_user_id }}/.ssh/authorized_keys']"
-      - "{{ __base_cts.results }}"
+      dest: "/var/lib/lxc/{{ item.0.lxc_container.name }}/rootfs{{ item.1 }}"
+    loop: "{{ __base_cts.results | product(__authorized_keys_paths) | list }}"
+    vars:
+      __authorized_keys_paths:
+        - /root/.ssh/authorized_keys
+        - "/home/{{ ansible_user_id }}/.ssh/authorized_keys"
 
   - name: Create all of our test LXC containers via cloning
     lxc_container:
@@ -199,9 +203,7 @@
     async: 7200
     poll: 0
     changed_when: false
-    with_nested:
-      - "{{ test_profiles }}"
-      - "{{ test_host_suffixes }}"
+    loop: "{{ test_profiles | product(test_host_suffixes) | list }}"
 
   - name: Wait for all of the clone jobs to complete
     async_status:
@@ -209,7 +211,7 @@
     register: __clone
     until: __clone.finished
     retries: 300
-    with_items: "{{ __clone_jobs.results }}"
+    loop: "{{ __clone_jobs.results }}"
     when: "'ansible_job_id' in item"
 
   - name: Start and wait for all test containers to come online
@@ -219,7 +221,7 @@
     register: __containers
     until: __containers.lxc_container.ips
     retries: 300
-    with_items: "{{ __clone.results }}"
+    loop: "{{ __clone.results }}"
 
   - name: Collect all LXC container host information into one list
     set_fact:
@@ -235,20 +237,20 @@
       dest: /etc/hosts
       regexp: "^.* {{ item.name }}"
       line: "{{ item.ip }} {{ item.name }}.lxc {{ item.name }}"
-    with_items: "{{ lxc_hosts }}"
+    loop: "{{ lxc_hosts }}"
 
   - name: Populate every container's /etc/hosts with every container's addresses
     template:
       src: hosts.j2
       dest: "/var/lib/lxc/{{ item.name }}/{{ 'delta0' if lxc_use_overlayfs else 'rootfs' }}/etc/hosts"
-    with_items: "{{ lxc_hosts }}"
+    loop: "{{ lxc_hosts }}"
   become: True
 
 - name: Collect SSH host keys from all containers
   shell: "ssh-keyscan {{ item.name }}.lxc {{ item.name }} > ~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
   args:
     creates: "~{{ ansible_user_id }}/.ssh/{{ item.name }}.pub"
-  with_items: "{{ lxc_hosts }}"
+  loop: "{{ lxc_hosts }}"
 
 - name: Add all containers to current user's known_hosts
   blockinfile:
@@ -256,6 +258,6 @@
     content: "{{ lookup('file', '~' + ansible_user_id + '/.ssh/' + item.name + '.pub') }}"
     dest: "~{{ ansible_user_id }}/.ssh/known_hosts"
     create: yes
-  with_items: "{{ lxc_hosts }}"
+  loop: "{{ lxc_hosts }}"
 
 # vim:ft=ansible:
