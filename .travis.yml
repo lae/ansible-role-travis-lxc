@@ -9,16 +9,9 @@ cache:
   - "$HOME/lxc"
   pip: true
 env:
-  - ANSIBLE_VERSION='<2.8.0' # 2.7.x
+  - ANSIBLE_GIT_VERSION='pull/40924/merge' # Ansible PR #40924
 matrix:
   fast_finish: true
-  include:
-    - python: '2.7'
-      env: ANSIBLE_GIT_VERSION='devel' # 2.8.x development branch
-    - python: '2.7'
-      env: ANSIBLE_VERSION='<2.7.0' # 2.6.x
-    - python: '2.7'
-      env: ANSIBLE_VERSION='<2.6.0' # 2.5.x
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
