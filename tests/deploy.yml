@@ -9,8 +9,9 @@
       - m4
     test_hosts_per_profile: 2
     test_profiles:
+      - profile: debian-buster
+        prefix: debian-buster-test-
       - profile: debian-stretch
-        prefix: debian-stretch-test-
       - profile: debian-jessie
       #- profile: debian-wheezy
       - profile: centos-7
