@@ -60,7 +60,7 @@
         --mirror {{ _travis_ubuntu_mirror }}
         {% endif %}\
         {% if _template not in ['centos', 'alpine'] %}\
-        --packages {{ _packages | join(' ' if _template == 'fedora' else ',') }}
+        --packages {{ _packages | join(',') }}
         {% elif _template == 'alpine' %}
         {{ _packages | join(' ') }}
         {% endif %}"

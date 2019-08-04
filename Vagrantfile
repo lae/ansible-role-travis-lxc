@@ -9,6 +9,11 @@ Vagrant.configure("2") do |config|
   # Reference: https://github.com/hashicorp/vagrant/issues/9666#issuecomment-401931144
   config.vm.box = "matjazp/ubuntu-trusty64"
 
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.memory = 2048
+    libvirt.cpus = 2
+  end
+
   # Performs most of the "install" tasks in .travis.yml
   config.vm.provision "shell", privileged: false,
     path: "vagrant.sh", args: ["install"]
