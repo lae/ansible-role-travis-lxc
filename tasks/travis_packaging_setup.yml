@@ -50,6 +50,10 @@
     file:
       path: /usr/share/lxc/templates/lxc-fedora
       mode: 0755
+
+  - name: Install updated debian-archive-keyring from Debian 10's repository
+    apt:
+      deb: http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1_all.deb
   become: True
 
 - name: Install LXC Python library
