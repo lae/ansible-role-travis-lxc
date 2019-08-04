@@ -10,23 +10,26 @@ case "$action" in
         echo "[TASK] Installing computology/apt-backport repository..."
         wget -qO- https://packagecloud.io/install/repositories/computology/apt-backport/script.deb.sh | sudo bash
     fi
-    if [ ! -x $VIRTUALENV_PATH/bin/activate ]; then
+    if [ ! -f $VIRTUALENV_PATH/bin/activate ]; then
         echo "[TASK] Installing Ansible dependencies and setting up virtual environment..."
         sudo apt-get update
         sudo apt-get install -y python-pip python-dev libffi-dev libyaml-dev libssl-dev build-essential git python-virtualenv
-        sudo pip install virtualenv --upgrade
         virtualenv $VIRTUALENV_PATH
     fi
     source $VIRTUALENV_PATH/bin/activate
     if [ ! -x $VIRTUALENV_PATH/bin/ansible-playbook ]; then
         echo "[TASK] Installing Ansible..."
-        #pip install -U "pip<9.0.0"
+        # pip>9.0 seems to introduce some versioning checks that affect
+        # idempotency of the pip module, and it doesn't look like travis uses
+        # pip>9.0. pip needs to be upgraded for installing cryptography package
+        # correctly, though.
+        pip install -U "pip<9.0.0"
         pip install ansible
     fi
     echo "[TASK] Packaging lae.travis-lxc role and installing it in guest..."
     cd /vagrant
-    git archive --format tar.gz HEAD > lae.travis-lxc.tar.gz
-    ansible-galaxy install lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc --force
+    git ls-files -z | xargs -0 tar -czvf lae.travis-lxc.tar.gz #https://stackoverflow.com/a/43909430/4670172
+    ansible-galaxy install lae.travis-lxc.tar.gz,devel-$(git rev-parse HEAD),lae.travis-lxc --force
     rm lae.travis-lxc.tar.gz
     ;;
 "syntax")
