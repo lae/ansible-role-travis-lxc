@@ -23,3 +23,5 @@
       #- profile: fedora-26
       #- profile: fedora-25
       - profile: alpine-v3.8
+      - profile: alpine-v3.7
+      - profile: alpine-v3.6
