@@ -28,13 +28,13 @@ install:
   lae.travis-lxc.tar.gz,$(git rev-parse HEAD),lae.travis-lxc && rm lae.travis-lxc.tar.gz
 before_script: cd tests/
 script:
-- ansible-playbook -i inventory${TEST} deploy${TEST}.yml --syntax-check
-- ansible-playbook -i inventory${TEST} -v deploy${TEST}.yml
-- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vvi inventory${TEST}
-  deploy${TEST}.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: ";
+- ansible-playbook -i inventory deploy.yml --syntax-check
+- ansible-playbook -i inventory -v deploy.yml
+- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vvi inventory
+  deploy.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: ";
   grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*"
   && (echo "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
-- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory${TEST} -v test.yml
+- ANSIBLE_STDOUT_CALLBACK=debug ansible-playbook -i inventory -v test.yml
 notifications:
   webhooks:
     urls:
