@@ -23,7 +23,7 @@ sudo: required
 dist: trusty
 install:
 - pip install ansible
-- ansible-galaxy install lae.travis-lxc,v0.8.0
+- ansible-galaxy install lae.travis-lxc,v0.8.1
 - ansible-playbook tests/install.yml -i tests/inventory
 before_script: cd tests/
 script:
@@ -59,7 +59,7 @@ build process, but the following is what typically serves most purposes:
     - lae.travis-lxc
   vars:
     test_profiles:
-      - profile: debian-stretch
+      - profile: debian-buster
       - profile: ubuntu-bionic
       - profile: centos-7
       - profile: alpine-v3.8
@@ -120,7 +120,7 @@ contendant that errors is the log printing task when testing multiple distros).
 And finally, the inventory:
 
 ```ini
-debian-stretch-01
+debian-buster-01
 ubuntu-bionic-01
 centos-7-01
 alpine-v3-8-01
@@ -141,10 +141,10 @@ configure in `.travis.yml` and there are various ways to go about it:
 
 ```yaml
 env:
-- ANSIBLE_GIT_VERSION='devel' # 2.8.x development branch
+- ANSIBLE_GIT_VERSION='devel' # 2.9.x development branch
+- ANSIBLE_VERSION='<2.9.0' # 2.8.x
 - ANSIBLE_VERSION='<2.8.0' # 2.7.x
 - ANSIBLE_VERSION='<2.7.0' # 2.6.x
-- ANSIBLE_VERSION='<2.6.0' # 2.5.x
 install:
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
   else pip install "ansible${ANSIBLE_VERSION}"; fi
@@ -196,6 +196,7 @@ profiles include (feel free to request/contribute new ones):
 
 ```yaml
 test_profiles:
+  - profile: debian-buster
   - profile: debian-stretch
   - profile: debian-jessie
   - profile: debian-wheezy # EOL
@@ -230,7 +231,7 @@ For example, the following creates `debian01`, `debian02`, and `debian03`:
 
 ```yaml
 test_profiles:
-  - profile: debian-stretch
+  - profile: debian-buster
     prefix: debian
 test_hosts_per_profile: 3
 ```
