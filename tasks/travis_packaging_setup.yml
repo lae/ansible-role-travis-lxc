@@ -51,6 +51,11 @@
       path: /usr/share/lxc/templates/lxc-fedora
       mode: 0755
 
+  - name: Patch Debian's LXC template to use iproute2
+    patch:
+      src: debian-iproute2.patch
+      dest: /usr/share/lxc/templates/lxc-debian
+
   - name: Install updated debian-archive-keyring from Debian 10's repository
     apt:
       deb: http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1_all.deb

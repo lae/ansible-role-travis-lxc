@@ -39,6 +39,18 @@ travis_lxc_profiles:
     rootfs: /var/cache/lxc/debian/rootfs-stretch-amd64
     rootfs_exclude:
       - "/*.pyc"
+  debian-buster:
+    label: "Debian Buster (10)"
+    prefix: debian-buster-
+    packages:
+      - python
+      - ca-certificates
+      - curl
+      - sudo
+      - gnupg2
+    rootfs: /var/cache/lxc/debian/rootfs-buster-amd64
+    rootfs_exclude:
+      - "/*.pyc"
   ubuntu-trusty:
     label: "Ubuntu Trusty Tahr (14.04)"
     prefix: ubuntu-trusty-

@@ -29,6 +29,7 @@ Vagrant.configure("2") do |config|
     ansible.install = false
     ansible.provisioning_path = "/vagrant/tests/"
     ansible.playbook_command = "VIRTUAL_ENV=/home/vagrant/.virtualenv/ PATH=\"$VIRTUALENV:$PATH\" /home/vagrant/.virtualenv/bin/ansible-playbook"
+    ansible.compatibility_mode = "2.0"
     ansible.playbook = "deploy.yml"
     ansible.verbose = true
   end
