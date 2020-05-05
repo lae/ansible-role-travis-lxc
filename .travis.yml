@@ -9,7 +9,7 @@ cache:
   - "$HOME/lxc"
   pip: true
 env:
-  - ANSIBLE_VERSION='<2.10.0' # 2.9.x
+  - ANSIBLE_VERSION='~=2.9.0'
 matrix:
   fast_finish: true
   include:
@@ -18,9 +18,9 @@ matrix:
 #    - python: '3.6'
 #      env: ANSIBLE_GIT_VERSION='devel' # 2.10.x development branch
     - python: '3.6'
-      env: ANSIBLE_VERSION='<2.9.0' # 2.8.x
+      env: ANSIBLE_VERSION='~=2.8.0'
     - python: '3.6'
-      env: ANSIBLE_VERSION='<2.8.0' # 2.7.x
+      env: ANSIBLE_VERSION='~=2.7.0'
 # Install expect here since it's just a normal utility and it's needed for
 # reading any playbook errors easily
 addons:

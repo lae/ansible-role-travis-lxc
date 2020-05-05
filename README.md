@@ -20,10 +20,10 @@ valid, idempotent, and functional may look like this:
 ---
 language: python
 sudo: required
-dist: trusty
+dist: bionic
 install:
 - pip install ansible
-- ansible-galaxy install lae.travis-lxc,v0.8.1
+- ansible-galaxy install lae.travis-lxc,v0.9.0
 - ansible-playbook tests/install.yml -i tests/inventory
 before_script: cd tests/
 script:
@@ -60,9 +60,9 @@ build process, but the following is what typically serves most purposes:
   vars:
     test_profiles:
       - profile: debian-buster
-      - profile: ubuntu-bionic
-      - profile: centos-7
-      - profile: alpine-v3.8
+      - profile: ubuntu-focal
+      - profile: centos-8
+      - profile: alpine-v3.11
 
 # Add any other setup tasks you might need but don't necessarily need in your role
 - hosts: all
@@ -121,9 +121,9 @@ And finally, the inventory:
 
 ```ini
 debian-buster-01
-ubuntu-bionic-01
-centos-7-01
-alpine-v3-8-01
+ubuntu-focal-01
+centos-8-01
+alpine-v3-11-01
 ```
 
 Hostnames are generated from two parts, a prefix and suffix. By default, these
@@ -141,10 +141,10 @@ configure in `.travis.yml` and there are various ways to go about it:
 
 ```yaml
 env:
-- ANSIBLE_GIT_VERSION='devel' # 2.9.x development branch
-- ANSIBLE_VERSION='<2.9.0' # 2.8.x
-- ANSIBLE_VERSION='<2.8.0' # 2.7.x
-- ANSIBLE_VERSION='<2.7.0' # 2.6.x
+- ANSIBLE_GIT_VERSION='devel'
+- ANSIBLE_VERSION='~=2.9.0'
+- ANSIBLE_VERSION='~=2.9.0'
+- ANSIBLE_VERSION='~=2.7.0'
 install:
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
   else pip install "ansible${ANSIBLE_VERSION}"; fi
@@ -196,26 +196,41 @@ profiles include (feel free to request/contribute new ones):
 
 ```yaml
 test_profiles:
+  - profile: alpine-v3.11
+  - profile: alpine-v3.10
+  - profile: alpine-v3.9
+  - profile: centos-8
+  - profile: centos-7
   - profile: debian-buster
   - profile: debian-stretch
-  - profile: debian-jessie
-  - profile: debian-wheezy # EOL
-  - profile: centos-7
-  - profile: centos-6
+  - profile: fedora-32
+  - profile: fedora-31
+  - profile: ubuntu-focal
   - profile: ubuntu-bionic
   - profile: ubuntu-xenial
-  - profile: ubuntu-trusty
-  - profile: fedora-28
-  - profile: fedora-27
-  - profile: fedora-26 # EOL
-  - profile: fedora-25 # EOL
+```
+
+The following profiles have definitions, but are not necessarily actively
+supported as targets by this role (i.e. tests are no longer ran against these),
+either because they're officially EOL upstream or are relatively old. No
+guarantees are made that they are still functional (but they probably are).
+
+```yaml
+test_profiles:
   - profile: alpine-v3.8
   - profile: alpine-v3.7
   - profile: alpine-v3.6
+  - profile: centos-6
+  - profile: debian-jessie
+  - profile: debian-wheezy
+  - profile: fedora-30
+  - profile: fedora-29
+  - profile: fedora-28
+  - profile: fedora-27
+  - profile: fedora-26
+  - profile: fedora-25
+  - profile: ubuntu-trusty
 ```
-
-Profiles marked as `EOL` above, while are EOL upstream, are still available, but
-no guarantees are made that they are still functional (but they probably are).
 
 You can look at `vars/main.yml` for more information about those profiles.
 
@@ -240,7 +255,7 @@ The following creates `ubuntu-app-python2` and `ubuntu-app-python3`:
 
 ```yaml
 test_profiles:
-  - profile: ubuntu-bionic
+  - profile: ubuntu-focal
     prefix: ubuntu-
 test_host_suffixes:
   - app-python2
