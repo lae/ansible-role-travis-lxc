@@ -2,37 +2,22 @@
 - block:
   # This needs to be done using a command module because the apt module is
   # broken in the Travis CI virtualenv by default.
-  # The version is pinned to 1.2.10 to ensure that the version from apt-backport
-  # is installed - which Travis CI appears to use.
   - name: Install libapt-pkg-dev as build dependency for python-apt
-    command: "apt-get install -y libapt-pkg-dev=1.2.10"
+    shell: "apt update && apt install -y libapt-pkg-dev"
     args:
       creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
       warn: False
     retries: 3
-
-  # 1.1.0_beta5 is compatible with the above package
-  - name: Clone the python-apt source repository
-    git:
-      repo: https://git.launchpad.net/python-apt
-      dest: /usr/local/src/python-apt
-      version: 1.1.0_beta5
-      depth: 1
-    retries: 3
   become: True
 
-# After this task, the apt module can be used without problem. There's no need
-# to be root while running this, so it's outside of the blocks.
-- name: Install the python-apt library from local source
+# After this task, the apt module can be used without problem.
+# 1.6.y branch tracks Xenial
+- name: Install the python-apt library from Launchpad
   pip:
-    name: file:///usr/local/src/python-apt
+    name: "https://git.launchpad.net/python-apt/snapshot/1.6.y.tar.gz"
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
 
 - block:
-  - name: Configure LXC PPA
-    apt_repository:
-      repo: "ppa:ubuntu-lxc/stable"
-
   - name: Install needed packages
     apt:
       name: "{{ travis_lxc_packages }}"
@@ -50,20 +35,11 @@
     file:
       path: /usr/share/lxc/templates/lxc-fedora
       mode: 0755
-
-  - name: Patch Debian's LXC template to use iproute2
-    patch:
-      src: debian-iproute2.patch
-      dest: /usr/share/lxc/templates/lxc-debian
-
-  - name: Install updated debian-archive-keyring from Debian 10's repository
-    apt:
-      deb: http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1_all.deb
   become: True
 
 - name: Install LXC Python library
   pip:
-    name: "{{ 'https://github.com/lxc/python3-lxc/archive/python3-lxc-3.0.1.tar.gz' if ansible_python.version.major == 3 else 'lxc_python2' }}"
+    name: "{{ 'https://github.com/lxc/python3-lxc/archive/python3-lxc-3.0.4.tar.gz' if ansible_python.version.major == 3 else 'lxc_python2' }}"
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
   retries: 3
 

@@ -11,18 +11,18 @@
     test_profiles:
       - profile: debian-buster
         prefix: debian-buster-test-
-      - profile: debian-stretch
-      - profile: debian-jessie
+      #- profile: debian-stretch
+      #- profile: debian-jessie
       #- profile: debian-wheezy
       - profile: centos-7
-      - profile: centos-6
+      #- profile: centos-6
       - profile: ubuntu-bionic
-      - profile: ubuntu-xenial
-      - profile: ubuntu-trusty
+      #- profile: ubuntu-xenial
+      #- profile: ubuntu-trusty
       - profile: fedora-28
-      - profile: fedora-27
+      #- profile: fedora-27
       #- profile: fedora-26
       #- profile: fedora-25
       - profile: alpine-v3.8
-      - profile: alpine-v3.7
-      - profile: alpine-v3.6
+      #- profile: alpine-v3.7
+      #- profile: alpine-v3.6

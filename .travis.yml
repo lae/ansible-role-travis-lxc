@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "3.6"
 sudo: required
-dist: xenial
+dist: bionic
 cache:
   directories:
   - "$HOME/lxc"
@@ -13,12 +13,20 @@ env:
 matrix:
   fast_finish: true
   include:
-    - python: '3.6'
-      env: ANSIBLE_GIT_VERSION='devel' # 2.10.x development branch
+# FIXME: Ansible 2.10.x going through major restructuring.
+# https://groups.google.com/forum/#!msg/ansible-project/eXsoOKEd0Mk/XTgbnPWbCAAJ
+#    - python: '3.6'
+#      env: ANSIBLE_GIT_VERSION='devel' # 2.10.x development branch
     - python: '3.6'
       env: ANSIBLE_VERSION='<2.9.0' # 2.8.x
     - python: '3.6'
       env: ANSIBLE_VERSION='<2.8.0' # 2.7.x
+# Install expect here since it's just a normal utility and it's needed for
+# reading any playbook errors easily
+addons:
+  apt:
+    packages:
+      - expect
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
