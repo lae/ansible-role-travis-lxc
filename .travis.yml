@@ -3,22 +3,22 @@ python:
   - "2.7"
   - "3.6"
 sudo: required
-dist: trusty
+dist: xenial
 cache:
   directories:
   - "$HOME/lxc"
   pip: true
 env:
-  - ANSIBLE_VERSION='<2.9.0' # 2.7.x
+  - ANSIBLE_VERSION='<2.10.0' # 2.9.x
 matrix:
   fast_finish: true
   include:
-    - python: '2.7'
-      env: ANSIBLE_GIT_VERSION='devel' # 2.9.x development branch
-    - python: '2.7'
+    - python: '3.6'
+      env: ANSIBLE_GIT_VERSION='devel' # 2.10.x development branch
+    - python: '3.6'
+      env: ANSIBLE_VERSION='<2.9.0' # 2.8.x
+    - python: '3.6'
       env: ANSIBLE_VERSION='<2.8.0' # 2.7.x
-    - python: '2.7'
-      env: ANSIBLE_VERSION='<2.7.0' # 2.6.x
 install:
 - ls -lh $HOME/lxc
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
