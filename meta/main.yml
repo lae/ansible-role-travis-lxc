@@ -2,12 +2,12 @@ galaxy_info:
   author: Musee Ullah
   description: Builds and configures LXC container hosts to use for integration testing Ansible roles on Travis CI
   license: MIT
-  min_ansible_version: 2.5
+  min_ansible_version: 2.7
   github_branch: master
   platforms:
   - name: Ubuntu
     versions:
-    - trusty
+    - bionic
   galaxy_tags:
     - development
     - ansible

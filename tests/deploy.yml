@@ -17,7 +17,6 @@
       - profile: centos-6
       - profile: ubuntu-bionic
       - profile: ubuntu-xenial
-      - profile: ubuntu-trusty
       - profile: fedora-28
       - profile: fedora-27
       - profile: alpine-v3.8
