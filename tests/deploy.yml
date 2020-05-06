@@ -9,16 +9,13 @@
       - m4
     test_hosts_per_profile: 2
     test_profiles:
+      - profile: alpine-v3.11
+      - profile: alpine-v3.10
+      - profile: alpine-v3.9
+      - profile: centos-7
       - profile: debian-buster
         prefix: debian-buster-test-
       - profile: debian-stretch
-      - profile: debian-jessie
-      - profile: centos-7
-      - profile: centos-6
+      - profile: ubuntu-focal
       - profile: ubuntu-bionic
       - profile: ubuntu-xenial
-      - profile: fedora-28
-      - profile: fedora-27
-      - profile: alpine-v3.8
-      - profile: alpine-v3.7
-      - profile: alpine-v3.6
