@@ -30,11 +30,11 @@ script:
 # Validates your deployment playbook's syntax, which should contain your role
 - ansible-playbook -i inventory deploy.yml --syntax-check
 # Runs the deployment playbook
-- ansible-playbook -i inventory -v deploy.yml
+- ansible-playbook -i inventory deploy.yml
 # Runs the deployment playbook again, saving output to a file called play.log,
 # then checks that there are no changed/failed tasks and fails if there are.
-- 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -vv -i inventory
-  deploy.yml > play.log || (e=$?; cat play.log; exit $e); printf "Idempotence: ";
+- 'ANSIBLE_STDOUT_CALLBACK=debug ANSIBLE_DISPLAY_SKIPPED_HOSTS=no ANSIBLE_DISPLAY_OK_HOSTS=no
+  unbuffer ansible-playbook -vvi inventory deploy.yml &>play.log; printf "Idempotence: ";
   grep -A1 "PLAY RECAP" play.log | grep -qP "changed=0 .*failed=0 .*"
   && (echo "PASS"; exit 0) || (echo "FAIL"; cat play.log; exit 1)'
 # Integration tests and what not
@@ -61,7 +61,7 @@ build process, but the following is what typically serves most purposes:
     test_profiles:
       - profile: debian-buster
       - profile: ubuntu-focal
-      - profile: centos-8
+      - profile: centos-7
       - profile: alpine-v3.11
 
 # Add any other setup tasks you might need but don't necessarily need in your role
@@ -122,7 +122,7 @@ And finally, the inventory:
 ```ini
 debian-buster-01
 ubuntu-focal-01
-centos-8-01
+centos-7-01
 alpine-v3-11-01
 ```
 
@@ -199,12 +199,9 @@ test_profiles:
   - profile: alpine-v3.11
   - profile: alpine-v3.10
   - profile: alpine-v3.9
-  - profile: centos-8
   - profile: centos-7
   - profile: debian-buster
   - profile: debian-stretch
-  - profile: fedora-32
-  - profile: fedora-31
   - profile: ubuntu-focal
   - profile: ubuntu-bionic
   - profile: ubuntu-xenial
@@ -223,8 +220,6 @@ test_profiles:
   - profile: centos-6
   - profile: debian-jessie
   - profile: debian-wheezy
-  - profile: fedora-30
-  - profile: fedora-29
   - profile: fedora-28
   - profile: fedora-27
   - profile: fedora-26
