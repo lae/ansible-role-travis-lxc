@@ -20,7 +20,7 @@ valid, idempotent, and functional may look like this:
 ---
 language: python
 sudo: required
-dist: bionic
+dist: focal
 install:
 - pip install ansible
 - ansible-galaxy install lae.travis-lxc,v0.9.0

@@ -12,10 +12,14 @@
 
 # After this task, the apt module can be used without problem.
 # 1.6.y branch tracks Xenial
+# 2.0.0 tag is for Focal
+# https://git.launchpad.net/python-apt/
 - name: Install the python-apt library from Launchpad
   pip:
-    name: "https://git.launchpad.net/python-apt/snapshot/1.6.y.tar.gz"
+    name: "https://git.launchpad.net/python-apt/snapshot/{{ _python_apt_ref }}.tar.gz"
     virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+  vars:
+    _python_apt_ref: "{{ (ansible_distribution_release == 'xenial') | ternary('1.6.y', '2.0.0') }}"
 
 - block:
   - name: Install needed packages
