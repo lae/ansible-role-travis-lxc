@@ -1,26 +1,20 @@
 language: python
-python:
-  - "2.7"
-  - "3.6"
-sudo: required
 dist: bionic
 cache:
   directories:
   - "$HOME/lxc"
   pip: true
-env:
-  - ANSIBLE_VERSION='~=2.9.0'
 matrix:
   fast_finish: true
   include:
-# FIXME: Ansible 2.10.x going through major restructuring.
+# FIXME: Ansible 2.10.x went through major refactoring of how the codebase is
+# managed, which breaks our ansible git version tests.
 # https://groups.google.com/forum/#!msg/ansible-project/eXsoOKEd0Mk/XTgbnPWbCAAJ
 #    - python: '3.6'
-#      env: ANSIBLE_GIT_VERSION='devel' # 2.10.x development branch
-    - python: '3.6'
-      env: ANSIBLE_VERSION='~=2.8.0'
-    - python: '3.6'
-      env: ANSIBLE_VERSION='~=2.7.0'
+#      env: ANSIBLE_GIT_VERSION='devel' # 2.11.x development branch
+    - env: ANSIBLE_VERSION='~=2.10.0'
+    - env: ANSIBLE_VERSION='~=2.9.0'
+    - env: ANSIBLE_VERSION='~=2.8.0'
 # Install expect here since it's just a normal utility and it's needed for
 # reading any playbook errors easily
 addons:

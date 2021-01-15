@@ -2,20 +2,25 @@
 - block:
   # This needs to be done using a command module because the apt module is
   # broken in the Travis CI virtualenv by default.
-  - name: Install libapt-pkg-dev as build dependency for python-apt
-    shell: "apt update && apt install -y libapt-pkg-dev"
+  - name: Install python3-apt systemwide
+    shell: "apt update && apt install -y python3-apt"
     args:
-      creates: /usr/lib/x86_64-linux-gnu/libapt-pkg.so
+      creates: /usr/lib/python3/dist-packages/apt
       warn: False
     retries: 3
   become: True
 
 # After this task, the apt module can be used without problem.
-# 1.6.y branch tracks Xenial
-- name: Install the python-apt library from Launchpad
-  pip:
-    name: "https://git.launchpad.net/python-apt/snapshot/1.6.y.tar.gz"
-    virtualenv: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+- name: Install python-apt into virtualenv
+  copy:
+    src: "/usr/lib/python3/dist-packages/{{ item }}"
+    dest: "{{ lookup('env', 'VIRTUAL_ENV') }}/lib/python3.6/site-packages/"
+    remote_src: yes
+  with_items:
+    - apt
+    - aptsources
+    - apt_inst.cpython-36m-x86_64-linux-gnu.so
+    - apt_pkg.cpython-36m-x86_64-linux-gnu.so
 
 - block:
   - name: Install needed packages
@@ -34,6 +39,16 @@
   - name: Ensure Fedora LXC template is executable
     file:
       path: /usr/share/lxc/templates/lxc-fedora
+      mode: 0755
+
+  - name: Patch Alpine's LXC template to not fail on mknod
+    patch:
+      src: alpine-mknod.patch
+      dest: /usr/share/lxc/templates/lxc-alpine
+
+  - name: Ensure Alpine LXC template is executable
+    file:
+      path: /usr/share/lxc/templates/lxc-alpine
       mode: 0755
   become: True
 
