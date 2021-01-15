@@ -40,6 +40,16 @@
     file:
       path: /usr/share/lxc/templates/lxc-fedora
       mode: 0755
+
+  - name: Patch Alpine's LXC template to not fail on mknod
+    patch:
+      src: alpine-mknod.patch
+      dest: /usr/share/lxc/templates/lxc-alpine
+
+  - name: Ensure Alpine LXC template is executable
+    file:
+      path: /usr/share/lxc/templates/lxc-alpine
+      mode: 0755
   become: True
 
 - name: Install LXC Python library
