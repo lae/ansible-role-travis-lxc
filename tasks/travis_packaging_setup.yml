@@ -7,7 +7,7 @@
   - name: Install python3-apt systemwide
     shell: "apt update && apt install -y sl python3-apt"
     args:
-      creates: /usr/bin/sl
+      creates: /usr/games/sl
       warn: False
     retries: 3
   become: True
